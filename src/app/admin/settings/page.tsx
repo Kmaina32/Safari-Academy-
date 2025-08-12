@@ -11,7 +11,9 @@ import { doc, getDoc, setDoc, addDoc, collection } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
-import { sampleCourses } from '@/lib/data';
+import { generateCourse } from '@/ai/flows/course-generator';
+import { Loader2 } from 'lucide-react';
+
 
 interface HomePageSettings {
     heroTitle: string;
@@ -28,6 +30,8 @@ export default function AdminSettingsPage() {
         authBackgroundImageUrl: '',
     });
     const [loading, setLoading] = useState(true);
+    const [generating, setGenerating] = useState(false);
+    const [courseTopic, setCourseTopic] = useState('');
     const { toast } = useToast();
 
     useEffect(() => {
@@ -79,21 +83,54 @@ export default function AdminSettingsPage() {
         }
     };
     
-    const handleSeedDatabase = async () => {
-        try {
-            const promises = sampleCourses.map(course => addDoc(collection(db, "courses"), course));
-            await Promise.all(promises);
+    const handleGenerateCourse = async () => {
+        if (!courseTopic) {
             toast({
-                title: "Database Seeded!",
-                description: "Sample courses have been added to your database.",
-            });
-        } catch (error) {
-             console.error("Error seeding database: ", error);
-             toast({
-                title: "Error",
-                description: "There was an error seeding the database.",
+                title: "Topic Required",
+                description: "Please enter a topic for the course.",
                 variant: "destructive",
             });
+            return;
+        }
+        setGenerating(true);
+        try {
+            const generatedData = await generateCourse({ topic: courseTopic });
+            const allLessons = generatedData.modules.flatMap((m, moduleIndex) => m.lessons.map((l, lessonIndex) => ({
+                ...l,
+                id: `m${moduleIndex+1}-l${lessonIndex+1}`,
+            })));
+
+            await addDoc(collection(db, "courses"), {
+                ...generatedData,
+                imageUrl: `https://placehold.co/600x400?text=${generatedData.title.replace(/\s/g, '+')}`,
+                rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
+                enrolledStudents: Math.floor(Math.random() * 1000),
+                price: Math.floor(Math.random() * 8) * 10 + 29.99, // Random price
+                lessons: allLessons,
+                modules: generatedData.modules.map((m, moduleIndex) => ({
+                    ...m,
+                    imageUrl: "https://placehold.co/600x400",
+                    lessons: m.lessons.map((l, lessonIndex) => ({
+                        ...l,
+                        id: `m${moduleIndex+1}-l${lessonIndex+1}`,
+                    }))
+                })),
+            });
+
+            toast({
+                title: "Course Generated!",
+                description: `Successfully created the course: "${generatedData.title}"`,
+            });
+            setCourseTopic('');
+        } catch (error) {
+             console.error("Error generating course: ", error);
+             toast({
+                title: "Error",
+                description: "There was an error generating the course.",
+                variant: "destructive",
+            });
+        } finally {
+            setGenerating(false);
         }
     }
 
@@ -158,15 +195,24 @@ export default function AdminSettingsPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Database Management</CardTitle>
-                <CardDescription>Actions for managing your database content.</CardDescription>
+                <CardDescription>Use AI to generate comprehensive course content for a given topic.</CardDescription>
             </CardHeader>
             <CardContent>
-                 <div className="flex items-center justify-between rounded-lg border p-3">
-                    <div className="space-y-0.5">
-                        <Label>Seed Database</Label>
-                        <p className="text-xs text-muted-foreground">Add sample courses to your database. This is useful for development and testing.</p>
+                 <div className="flex items-center gap-4 rounded-lg border p-4">
+                    <div className="flex-1 space-y-2">
+                        <Label htmlFor="course-topic">Course Topic</Label>
+                        <Input 
+                            id="course-topic" 
+                            placeholder="e.g., 'Introduction to Quantum Physics'"
+                            value={courseTopic}
+                            onChange={(e) => setCourseTopic(e.target.value)}
+                            disabled={generating}
+                        />
                     </div>
-                   <Button variant="secondary" onClick={handleSeedDatabase}>Seed Courses</Button>
+                   <Button variant="secondary" onClick={handleGenerateCourse} disabled={generating}>
+                        {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {generating ? 'Generating...' : 'Generate Course'}
+                   </Button>
                 </div>
             </CardContent>
         </Card>
