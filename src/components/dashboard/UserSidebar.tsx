@@ -8,9 +8,8 @@ import {
   SidebarFooter,
   SidebarContent,
 } from '@/components/ui/sidebar';
-import { Logo } from '../shared/Logo';
 import { usePathname } from 'next/navigation';
-import { BookCopy, User, Settings, ShieldCheck, LogOut } from 'lucide-react';
+import { BookCopy, User, Settings, ShieldCheck } from 'lucide-react';
 
 const menuItems = [
     { href: '/dashboard', label: 'My Courses', icon: BookCopy },
@@ -23,7 +22,7 @@ export function UserSidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="hidden lg:block w-64">
+    <div className="hidden lg:block w-64 sticky top-16 h-[calc(100vh-4rem)]">
         <Sidebar className="h-full border-r">
         <SidebarContent className="p-4 flex flex-col justify-between">
             <SidebarMenu>
