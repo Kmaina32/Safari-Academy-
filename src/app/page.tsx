@@ -71,14 +71,14 @@ export default function Home() {
             <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-white mb-6">
               {loading ? <Skeleton className="h-16 w-3/4 mx-auto" /> : settings.heroTitle}
             </h1>
-            <p className="text-lg md:text-xl text-slate-200 mb-8">
+            <div className="text-lg md:text-xl text-slate-200 mb-8">
               {loading ? (
                 <div className="space-y-2">
                   <Skeleton className="h-5 w-full mx-auto" />
                   <Skeleton className="h-5 w-2/3 mx-auto" />
                 </div>
-              ) : settings.heroSubtitle}
-            </p>
+              ) : <p>{settings.heroSubtitle}</p>}
+            </div>
             <Button size="lg" asChild>
               <Link href="/courses">
                 Browse Courses <ArrowRight className="ml-2 h-5 w-5" />
