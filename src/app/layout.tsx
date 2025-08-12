@@ -22,6 +22,9 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
   const isAdminPage = pathname.startsWith('/admin');
+  const noFooterPages = ['/login', '/signup', '/forgot-password'];
+  const hideFooter = isAdminPage || noFooterPages.includes(pathname);
+
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -39,8 +42,8 @@ export default function RootLayout({
         <AuthProvider>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <div className="flex-1">{children}</div>
-            {!isAdminPage && <Footer />}
+            <main className="flex-1 pb-24">{children}</main>
+            {!hideFooter && <Footer />}
           </div>
           <Toaster />
         </AuthProvider>

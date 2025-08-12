@@ -30,7 +30,7 @@ const lessonSchema = z.object({
     title: z.string().min(2, "Lesson title is too short."),
     content: z.string().min(10, "Lesson content is too short."),
     duration: z.string().optional(),
-    videoUrl: z.string().url("Must be a valid URL.").optional().or(z.literal('')),
+    videoUrl: z.string().url("Must be a valid YouTube URL.").optional().or(z.literal('')),
 })
 
 const moduleSchema = z.object({
@@ -225,7 +225,7 @@ function LessonArray({ moduleIndex, control }: { moduleIndex: number; control: a
                 </div>
                 <FormField control={control} name={`modules.${moduleIndex}.lessons.${lessonIndex}.title`} render={({ field }) => (<FormItem><FormLabel className="text-xs">Lesson Title</FormLabel><FormControl><Input placeholder="Lesson Title" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={control} name={`modules.${moduleIndex}.lessons.${lessonIndex}.content`} render={({ field }) => (<FormItem><FormLabel className="text-xs">Lesson Content</FormLabel><FormControl><Textarea placeholder="Lesson details..." {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={control} name={`modules.${moduleIndex}.lessons.${lessonIndex}.videoUrl`} render={({ field }) => (<FormItem><FormLabel className="text-xs">Video URL (Optional)</FormLabel><FormControl><Input placeholder="https://example.com/video.mp4" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={control} name={`modules.${moduleIndex}.lessons.${lessonIndex}.videoUrl`} render={({ field }) => (<FormItem><FormLabel className="text-xs">YouTube Video URL (Optional)</FormLabel><FormControl><Input placeholder="https://www.youtube.com/watch?v=..." {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
         ))}
         <Button type="button" variant="outline" size="sm" onClick={() => append({ title: `Lesson ${fields.length + 1}`, content: "", videoUrl: "" })}>

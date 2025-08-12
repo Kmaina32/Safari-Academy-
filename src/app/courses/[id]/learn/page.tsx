@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Course } from '@/lib/types';
+import { VideoPlayer } from '@/components/courses/VideoPlayer';
 
 export default function CourseLearnPage() {
   const params = useParams();
@@ -99,8 +100,8 @@ export default function CourseLearnPage() {
             </header>
             <Card>
                 <CardContent className="p-4">
-                    <div className="aspect-video bg-muted rounded-lg mb-6 flex items-center justify-center">
-                        <p className="text-muted-foreground">Video player will go here</p>
+                    <div className="aspect-video bg-muted rounded-lg mb-6 overflow-hidden">
+                       <VideoPlayer videoUrl={currentLesson.videoUrl} />
                     </div>
                     <h2 className="text-2xl font-bold mb-4">About this lesson</h2>
                     <div className="prose max-w-none text-foreground">
