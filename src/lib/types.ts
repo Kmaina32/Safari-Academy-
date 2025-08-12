@@ -94,12 +94,3 @@ export type Certificate = {
         nanoseconds: number;
     };
 }
-
-export type MaintenanceSettings = {
-    isEnabled: boolean;
-    endTime: {
-        seconds: number;
-        nanoseconds: number;
-    } | null;
-    message: string;
-}
