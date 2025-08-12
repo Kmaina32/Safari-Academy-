@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase"
 import { useToast } from "@/hooks/use-toast"
 import { PlusCircle, Trash2 } from "lucide-react"
@@ -57,12 +57,15 @@ export const formSchema = z.object({
 export type CourseFormValues = z.infer<typeof formSchema>;
 
 interface CourseFormProps {
-    onCourseAdded: () => void;
-    form: UseFormReturn<CourseFormValues>
+    onCourseHandled: () => void;
+    form: UseFormReturn<CourseFormValues>;
+    initialData?: CourseFormValues | null;
+    courseId?: string;
 }
 
-export function CourseForm({ onCourseAdded, form }: CourseFormProps) {
+export function CourseForm({ onCourseHandled, form, initialData, courseId }: CourseFormProps) {
   const { toast } = useToast()
+  const isEditing = !!initialData;
 
   const { fields: moduleFields, append: appendModule, remove: removeModule } = useFieldArray({
     control: form.control,
@@ -80,12 +83,9 @@ export function CourseForm({ onCourseAdded, form }: CourseFormProps) {
             duration: l.duration || `${Math.floor(Math.random() * 10) + 5} min`
         })));
 
-        await addDoc(collection(db, "courses"), {
+        const courseData = {
             ...values,
             price: finalPrice,
-            imageUrl: `https://placehold.co/600x400`,
-            rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
-            enrolledStudents: Math.floor(Math.random() * 1000),
             lessons: allLessons,
             modules: values.modules.map((m, moduleIndex) => ({
                 ...m,
@@ -95,18 +95,36 @@ export function CourseForm({ onCourseAdded, form }: CourseFormProps) {
                      duration: l.duration || `${Math.floor(Math.random() * 10) + 5} min`
                 }))
             })),
-        });
-        toast({
-            title: "Course Created!",
-            description: "The new course has been successfully added.",
-        })
+        };
+
+        if (isEditing && courseId) {
+            const courseRef = doc(db, "courses", courseId);
+            await updateDoc(courseRef, courseData);
+            toast({
+                title: "Course Updated!",
+                description: "The course has been successfully updated.",
+            });
+        } else {
+            await addDoc(collection(db, "courses"), {
+                ...courseData,
+                imageUrl: `https://placehold.co/600x400`,
+                rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
+                enrolledStudents: Math.floor(Math.random() * 1000),
+            });
+            toast({
+                title: "Course Created!",
+                description: "The new course has been successfully added.",
+            })
+        }
+        
         form.reset();
-        onCourseAdded();
+        onCourseHandled();
+
     } catch (e) {
-        console.error("Error adding document: ", e);
+        console.error("Error handling document: ", e);
          toast({
             title: "Error",
-            description: "There was an error creating the course.",
+            description: `There was an error ${isEditing ? 'updating' : 'creating'} the course.`,
             variant: "destructive"
         })
     }
@@ -115,7 +133,7 @@ export function CourseForm({ onCourseAdded, form }: CourseFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <ScrollArea className="h-[calc(100vh-28rem)] pr-4">
+        <ScrollArea className="h-[calc(100vh-22rem)] pr-4">
         <div className="space-y-6">
             <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="Introduction to Web Development" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Short Description</FormLabel><FormControl><Textarea placeholder="A brief summary of the course..." {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -187,7 +205,7 @@ export function CourseForm({ onCourseAdded, form }: CourseFormProps) {
         </div>
         </ScrollArea>
         <div className="pt-6 border-t">
-          <Button type="submit">Create Course</Button>
+          <Button type="submit">{isEditing ? 'Save Changes' : 'Create Course'}</Button>
         </div>
       </form>
     </Form>

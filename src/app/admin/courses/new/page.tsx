@@ -143,7 +143,7 @@ export default function NewCoursePage() {
             
             <AiGenerator form={form} setFormKey={setFormKey} />
 
-            <CourseForm key={formKey} onCourseAdded={handleCourseAdded} form={form} />
+            <CourseForm key={formKey} onCourseHandled={handleCourseAdded} form={form} />
         </div>
     );
 }

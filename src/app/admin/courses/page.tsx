@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, ArrowUpDown, Trash2, Sparkles } from "lucide-react";
+import { MoreHorizontal, PlusCircle, ArrowUpDown, Trash2, Sparkles, Pencil } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -116,7 +116,7 @@ export default function AdminCoursesPage() {
                                         </TableCell>
                                         <TableCell className="font-medium">{course.title}</TableCell>
                                         <TableCell>
-                                            <Badge variant={'secondary'}>Draft</Badge>
+                                            <Badge variant={'secondary'}>Published</Badge>
                                         </TableCell>
                                         <TableCell>{course.enrolledStudents.toLocaleString()}</TableCell>
                                         <TableCell>{course.rating}</TableCell>
@@ -130,7 +130,12 @@ export default function AdminCoursesPage() {
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem asChild>
+                                                            <Link href={`/admin/courses/${course.id}/edit`}>
+                                                                <Pencil className="mr-2 h-4 w-4" />
+                                                                Edit
+                                                            </Link>
+                                                        </DropdownMenuItem>
                                                         <DropdownMenuItem>View Analytics</DropdownMenuItem>
                                                         <AlertDialogTrigger asChild>
                                                             <DropdownMenuItem className="text-destructive">
