@@ -1,5 +1,5 @@
 import { EnrolledCourseCard } from "@/components/dashboard/EnrolledCourseCard";
-import { enrolledCourses, user } from "@/lib/data";
+import { user } from "@/lib/data";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course, EnrolledCourse as EnrolledCourseType } from '@/lib/types';
@@ -8,10 +8,29 @@ import type { Course, EnrolledCourse as EnrolledCourseType } from '@/lib/types';
 async function getUserEnrolledCourses(userId: string): Promise<(Course & EnrolledCourseType)[]> {
     // In a real app, you'd fetch enrollment data for the user
     // For now, we'll use the mock enrollment data and fetch full course details
+    const enrolledCourses: EnrolledCourseType[] = [
+        // This would be fetched from a 'enrollments' collection for the user
+    ]
     const courseIds = enrolledCourses.map(e => e.courseId);
     
     if (courseIds.length === 0) {
-        return [];
+        // To make the dashboard look populated, let's just grab the first two courses for now.
+        // In a real app, this block would return an empty array.
+        const allCoursesQuery = query(collection(db, "courses"), where("__name__", "!=", ""));
+        const allCoursesSnapshot = await getDocs(allCoursesQuery);
+        const allCourses: Course[] = [];
+        allCoursesSnapshot.forEach(doc => {
+            allCourses.push({ id: doc.id, ...doc.data()} as Course);
+        });
+
+        // Create fake enrollment data
+        return allCourses.slice(0, 2).map(course => ({
+            ...course,
+            courseId: course.id!,
+            progress: Math.floor(Math.random() * 100),
+            completedLessons: Math.floor(Math.random() * (course.lessons?.length || 0)),
+            totalLessons: course.lessons?.length || 0,
+        }));
     }
 
     const coursesRef = collection(db, "courses");
