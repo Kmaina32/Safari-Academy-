@@ -27,15 +27,25 @@ export default function AdminSettingsPage() {
 
     useEffect(() => {
         const fetchSettings = async () => {
-            const docRef = doc(db, "settings", "homepage");
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                setSettings(docSnap.data() as HomePageSettings);
+            try {
+                const docRef = doc(db, "settings", "homepage");
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    setSettings(docSnap.data() as HomePageSettings);
+                }
+            } catch (error) {
+                console.error("Error fetching settings:", error);
+                 toast({
+                    title: "Error",
+                    description: "Could not fetch homepage settings.",
+                    variant: "destructive",
+                });
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
         fetchSettings();
-    }, []);
+    }, [toast]);
 
     const handleSave = async () => {
         try {
