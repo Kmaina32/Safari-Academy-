@@ -21,7 +21,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
 import Link from 'next/link';

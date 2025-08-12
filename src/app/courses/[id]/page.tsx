@@ -12,8 +12,9 @@ import {
 } from '@/components/ui/accordion';
 import Link from 'next/link';
 
-export default function CourseDetailPage({ params }: { params: { id: string } }) {
-  const course = courses.find((c) => c.id === params.id);
+export default async function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const course = courses.find((c) => c.id === id);
 
   if (!course) {
     notFound();
