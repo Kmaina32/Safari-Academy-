@@ -39,14 +39,14 @@ export default function GenerateCoursePage() {
 
             await addDoc(collection(db, 'courses'), {
                 ...generatedData,
-                imageUrl: `https://placehold.co/600x400?text=${generatedData.title.replace(/\s/g, '+')}`,
+                imageUrl: `https://placehold.co/600x400?text=${encodeURIComponent(generatedData.title)}`,
                 rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
                 enrolledStudents: Math.floor(Math.random() * 1000),
                 price: Math.floor(Math.random() * 8) * 10 + 29.99, // Random price
                 lessons: allLessons,
                 modules: generatedData.modules.map((m, moduleIndex) => ({
                     ...m,
-                    imageUrl: 'https://placehold.co/600x400',
+                    imageUrl: `https://placehold.co/600x400?text=${encodeURIComponent(m.title)}`,
                     lessons: m.lessons.map((l, lessonIndex) => ({
                         ...l,
                         id: `m${moduleIndex + 1}-l${lessonIndex + 1}`,

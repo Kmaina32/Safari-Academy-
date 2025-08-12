@@ -46,7 +46,7 @@ function AiGenerator({ form, setFormKey }: { form: UseFormReturn<CourseFormValue
                 price: 29.99, // Default price
                 modules: generatedData.modules.map(m => ({
                     ...m,
-                    imageUrl: `https://placehold.co/600x400?text=${m.title.replace(/\s/g, '+')}`,
+                    imageUrl: `https://placehold.co/600x400?text=${encodeURIComponent(m.title)}`,
                     lessons: m.lessons.map(l => ({
                         ...l,
                         videoUrl: l.videoUrl || ''

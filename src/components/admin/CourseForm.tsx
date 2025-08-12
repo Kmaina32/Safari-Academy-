@@ -83,7 +83,7 @@ export function CourseForm({ onCourseAdded, form }: CourseFormProps) {
         await addDoc(collection(db, "courses"), {
             ...values,
             price: finalPrice,
-            imageUrl: `https://placehold.co/600x400?text=${values.title.replace(/\s/g, '+')}`,
+            imageUrl: `https://placehold.co/600x400?text=${encodeURIComponent(values.title)}`,
             rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
             enrolledStudents: Math.floor(Math.random() * 1000),
             lessons: allLessons,
@@ -222,4 +222,3 @@ function LessonArray({ moduleIndex, control }: { moduleIndex: number; control: a
     </div>
   )
 }
-
