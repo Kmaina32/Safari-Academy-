@@ -1,4 +1,3 @@
-import { courses } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -12,14 +11,33 @@ import {
 } from '@/components/ui/accordion';
 import Link from 'next/link';
 import React from 'react';
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import type { Course } from '@/lib/types';
 
-export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params);
-  const course = courses.find((c) => c.id === id);
+
+async function getCourse(id: string): Promise<Course | null> {
+    const docRef = doc(db, "courses", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as Course;
+    } else {
+        return null;
+    }
+}
+
+
+export default async function CourseDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const course = await getCourse(id);
 
   if (!course) {
     notFound();
   }
+  
+  // Fallback for modules/lessons if they don't exist
+  const modules = course.modules || [];
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -71,7 +89,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             <div className="mt-8 border rounded-lg bg-card text-card-foreground shadow-lg">
                 <h3 className="text-lg font-bold font-headline p-4 border-b">Course Content</h3>
                 <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
-                    {course.modules.map((module, moduleIndex) => (
+                    {modules.map((module, moduleIndex) => (
                       <AccordionItem value={`item-${moduleIndex}`} key={module.title}>
                           <AccordionTrigger className="px-4 text-left">{module.title}</AccordionTrigger>
                           <AccordionContent>

@@ -1,7 +1,21 @@
 import { CourseCard } from '@/components/courses/CourseCard';
-import { courses } from '@/lib/data';
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import type { Course } from '@/lib/types';
 
-export default function CoursesPage() {
+async function getCourses(): Promise<Course[]> {
+  const querySnapshot = await getDocs(collection(db, "courses"));
+  const courses: Course[] = [];
+  querySnapshot.forEach((doc) => {
+    courses.push({ id: doc.id, ...doc.data() } as Course);
+  });
+  return courses;
+}
+
+
+export default async function CoursesPage() {
+  const courses = await getCourses();
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="text-center mb-12">

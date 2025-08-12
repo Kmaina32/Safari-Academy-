@@ -1,7 +1,5 @@
-
 'use client';
 import React from 'react';
-import { courses } from '@/lib/data';
 import { notFound, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,21 +9,53 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Progress } from '@/components/ui/progress';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { Course } from '@/lib/types';
 
 export default function CourseLearnPage({ params }: { params: { id: string } }) {
   const { id } = React.use(params);
   const searchParams = useSearchParams();
-  const course = courses.find((c) => c.id === id);
+  const [course, setCourse] = React.useState<Course | null>(null);
+
+  React.useEffect(() => {
+    if (id) {
+      const getCourse = async () => {
+        const docRef = doc(db, 'courses', id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setCourse({ id: docSnap.id, ...docSnap.data() } as Course);
+        } else {
+          notFound();
+        }
+      };
+      getCourse();
+    }
+  }, [id]);
 
   if (!course) {
-    notFound();
+    return <div>Loading...</div>; // Or a spinner
+  }
+  
+  const lessonId = searchParams.get('lesson') || course.lessons?.[0]?.id;
+  const currentLesson = course.lessons?.find(l => l.id === lessonId) || course.lessons?.[0];
+  if(!currentLesson) {
+    return (
+        <div className="container mx-auto px-4 py-12">
+             <div className="text-center">
+                <h1 className="text-2xl font-bold">No lessons available for this course yet.</h1>
+                <p className="text-muted-foreground mt-2">Check back later!</p>
+                 <Button asChild className="mt-4">
+                    <Link href="/courses">Back to Courses</Link>
+                </Button>
+            </div>
+        </div>
+    )
   }
 
-  const lessonId = searchParams.get('lesson') || course.lessons[0].id;
-  const currentLesson = course.lessons.find(l => l.id === lessonId) || course.lessons[0];
   const currentLessonIndex = course.lessons.findIndex(l => l.id === lessonId);
 
   const nextLesson = currentLessonIndex < course.lessons.length -1 ? course.lessons[currentLessonIndex + 1] : null;
@@ -41,12 +71,12 @@ export default function CourseLearnPage({ params }: { params: { id: string } }) 
                 <div className="flex items-center gap-2">
                     {prevLesson && (
                         <Button variant="outline" size="sm" asChild>
-                            <Link href={`?lesson=${prevLesson.id}`}><ChevronLeft className="mr-2 h-4 w-4" /> Previous</Link>
+                            <Link href={`/courses/${id}/learn?lesson=${prevLesson.id}`}><ChevronLeft className="mr-2 h-4 w-4" /> Previous</Link>
                         </Button>
                     )}
                     {nextLesson && (
                         <Button size="sm" asChild>
-                            <Link href={`?lesson=${nextLesson.id}`}>Next <ChevronRight className="ml-2 h-4 w-4" /></Link>
+                            <Link href={`/courses/${id}/learn?lesson=${nextLesson.id}`}>Next <ChevronRight className="ml-2 h-4 w-4" /></Link>
                         </Button>
                     )}
                 </div>
@@ -75,7 +105,7 @@ export default function CourseLearnPage({ params }: { params: { id: string } }) 
                     </CardHeader>
                     <CardContent>
                          <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
-                            {course.modules.map((module, moduleIndex) => (
+                            {course.modules?.map((module, moduleIndex) => (
                             <AccordionItem value={`item-${moduleIndex}`} key={module.title}>
                                 <AccordionTrigger className="text-left font-semibold hover:no-underline">{module.title}</AccordionTrigger>
                                 <AccordionContent>
@@ -83,7 +113,7 @@ export default function CourseLearnPage({ params }: { params: { id: string } }) 
                                         {module.lessons.map((lesson) => (
                                             <li key={lesson.id}>
                                                 <Button variant={lesson.id === lessonId ? 'secondary' : 'ghost'} className="w-full justify-start h-auto py-2" asChild>
-                                                    <Link href={`?lesson=${lesson.id}`} className="flex items-start">
+                                                    <Link href={`/courses/${id}/learn?lesson=${lesson.id}`} className="flex items-start">
                                                         <PlayCircle className="w-4 h-4 mr-2 mt-1 text-primary flex-shrink-0" />
                                                         <div className="flex flex-col items-start">
                                                             <span className="text-sm text-wrap text-left">{lesson.title}</span>

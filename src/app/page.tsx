@@ -2,9 +2,23 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { CourseCard } from '@/components/courses/CourseCard';
 import Link from 'next/link';
-import { courses } from '@/lib/data';
+import { collection, getDocs, limit, query } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import type { Course } from '@/lib/types';
 
-export default function Home() {
+async function getFeaturedCourses(): Promise<Course[]> {
+  const q = query(collection(db, "courses"), limit(3));
+  const querySnapshot = await getDocs(q);
+  const courses: Course[] = [];
+  querySnapshot.forEach((doc) => {
+    courses.push({ id: doc.id, ...doc.data() } as Course);
+  });
+  return courses;
+}
+
+export default async function Home() {
+  const featuredCourses = await getFeaturedCourses();
+
   return (
     <div className="flex flex-col gap-16 md:gap-24">
       <section className="relative pt-16 md:pt-24 pb-16 md:pb-24">
@@ -37,7 +51,7 @@ export default function Home() {
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.slice(0, 3).map((course) => (
+          {featuredCourses.map((course) => (
             <CourseCard key={course.id} course={course} />
           ))}
         </div>
