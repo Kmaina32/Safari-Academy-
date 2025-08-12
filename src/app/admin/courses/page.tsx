@@ -7,10 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 
 const courses = [
-  { id: 'course-1', title: 'Introduction to Web Development', imageUrl: 'https://placehold.co/64x64', status: 'Published', enrolled: 1204, rating: 4.8 },
-  { id: 'course-2', title: 'Advanced Graphic Design', imageUrl: 'https://placehold.co/64x64', status: 'Published', enrolled: 852, rating: 4.9 },
-  { id: 'course-3', title: 'Digital Marketing Essentials', imageUrl: 'https://placehold.co/64x64', status: 'Draft', enrolled: 2341, rating: 4.7 },
-  { id: 'course-4', title: 'The Art of Public Speaking', imageUrl: 'https://placehold.co/64x64', status: 'Published', enrolled: 950, rating: 4.8 },
+  { id: 'course-1', title: 'Introduction to Web Development', imageUrl: 'https://placehold.co/40x40.png', status: 'Published', enrolled: 1204, rating: 4.8 },
+  { id: 'course-2', title: 'Advanced Graphic Design', imageUrl: 'https://placehold.co/40x40.png', status: 'Published', enrolled: 852, rating: 4.9 },
+  { id: 'course-3', title: 'Digital Marketing Essentials', imageUrl: 'https://placehold.co/40x40.png', status: 'Draft', enrolled: 2341, rating: 4.7 },
+  { id: 'course-4', title: 'The Art of Public Speaking', imageUrl: 'https://placehold.co/40x40.png', status: 'Published', enrolled: 950, rating: 4.8 },
 ];
 
 export default function AdminCoursesPage() {

@@ -11,13 +11,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AlignJustify, Bell, Home, LayoutDashboard, LogOut, Settings, User, Shield } from 'lucide-react';
+import { AlignJustify, Bell, Home, LogOut, Settings, User, Shield, LayoutDashboard } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
 
@@ -63,9 +66,14 @@ export function Header() {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+                  <SheetHeader>
+                    <SheetTitle><Logo /></SheetTitle>
+                    <SheetDescription>
+                      Navigate through the application.
+                    </SheetDescription>
+                  </SheetHeader>
                     <div className="mt-8">
-                        <Logo />
-                        <nav className="flex flex-col gap-4 mt-8">
+                        <nav className="flex flex-col gap-4">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.href}
