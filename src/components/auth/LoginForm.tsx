@@ -1,3 +1,4 @@
+
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -45,9 +46,17 @@ export function LoginForm() {
       });
       router.push("/dashboard");
     } catch (error: any) {
+      let description = "An unexpected error occurred. Please try again.";
+      // Check for common Firebase auth errors
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        description = "Invalid email or password. Please check your credentials or sign up if you don't have an account.";
+      } else if (error.message) {
+        description = error.message;
+      }
+      
       toast({
         title: "Login Failed",
-        description: error.message,
+        description: description,
         variant: "destructive",
       });
     }

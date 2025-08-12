@@ -53,6 +53,7 @@ export function Header() {
   const { user, loading, logout } = useAuth();
 
   const isAdminPage = pathname.startsWith('/admin');
+  const isHomePage = pathname === '/';
   
   let navLinks;
   if (isAdminPage) {
@@ -68,6 +69,8 @@ export function Header() {
     await logout();
     router.push('/');
   }
+
+  const showNavLinks = !isHomePage || user || isAdminPage;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
@@ -94,7 +97,7 @@ export function Header() {
                   </SheetHeader>
                     <div className="mt-8">
                         <nav className="flex flex-col gap-4">
-                        {navLinks.map((link) => (
+                        {showNavLinks && navLinks.map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
@@ -114,7 +117,7 @@ export function Header() {
 
 
         <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
-          {navLinks.map((link) => (
+          {showNavLinks && navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
