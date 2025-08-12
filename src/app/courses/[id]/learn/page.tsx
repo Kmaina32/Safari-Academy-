@@ -108,8 +108,10 @@ export default function CourseLearnPage({ params }: { params: Promise<{ id: stri
             <header className="flex items-center justify-between h-16 px-6 border-b bg-background">
                 <div className="flex items-center">
                     <div className="md:hidden">
-                        <SidebarTrigger asChild>
-                            <Button variant="ghost" size="icon"><PlayCircle /></Button>
+                        <SidebarTrigger>
+                          <Button variant="ghost" size="icon">
+                            <PlayCircle />
+                          </Button>
                         </SidebarTrigger>
                     </div>
                     <h1 className="text-xl font-semibold font-headline ml-2">{currentLesson.title}</h1>
