@@ -1,7 +1,7 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BarChart, LineChart, PieChart as PieChartIcon, Users, BookOpen, DollarSign } from "lucide-react";
-import { Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Line, Pie, PieChart, Cell } from "recharts";
+import { Users, BookOpen, DollarSign } from "lucide-react";
+import { LineChart, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line, PieChart, Pie, Cell } from "recharts";
 
 const monthlyRevenue = [
   { month: 'Jan', revenue: 4000 },
@@ -66,13 +66,13 @@ export default function AdminAnalyticsPage() {
           </CardHeader>
           <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-                 <LineChart data={monthlyRevenue}>
+                <LineChart data={monthlyRevenue}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="revenue" stroke="#31AD48" strokeWidth={2} />
+                    <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} />
                 </LineChart>
             </ResponsiveContainer>
           </CardContent>
