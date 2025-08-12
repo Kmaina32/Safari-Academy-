@@ -1,17 +1,11 @@
-import { SidebarProvider } from '@/components/ui/sidebar';
-import { UserSidebar } from '@/components/dashboard/UserSidebar';
-
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <div className="flex">
-        <UserSidebar />
-        <main className="flex-1 p-8">{children}</main>
-      </div>
-    </SidebarProvider>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex-1">{children}</div>
+    </div>
   );
 }
