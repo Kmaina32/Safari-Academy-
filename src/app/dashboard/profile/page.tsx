@@ -1,11 +1,12 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
-import { db, auth } from '@/lib/firebase';
+import { db, auth, storage } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import type { User } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
 
 function ProfileSkeleton() {
     return (
@@ -53,8 +55,12 @@ export default function ProfilePage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
+    const [avatarUrl, setAvatarUrl] = useState('');
     const [pageLoading, setPageLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -72,10 +78,12 @@ export default function ProfilePage() {
                     setName(userData.name || user.displayName || '');
                     setEmail(userData.email || user.email || '');
                     setPhone(userData.phone || '');
+                    setAvatarUrl(userData.avatarUrl || user.photoURL || '');
                 } else {
                     // If doc doesn't exist, use auth data and prepare to create doc on save
                     setName(user.displayName || '');
                     setEmail(user.email || '');
+                    setAvatarUrl(user.photoURL || '');
                 }
                 setPageLoading(false);
             };
@@ -94,7 +102,7 @@ export default function ProfilePage() {
 
             // Update or create Firestore user document
             const userDocRef = doc(db, 'users', user.uid);
-            await setDoc(userDocRef, { name, email, phone }, { merge: true });
+            await setDoc(userDocRef, { name, email, phone, avatarUrl }, { merge: true });
 
             toast({
                 title: 'Profile Updated',
@@ -112,6 +120,40 @@ export default function ProfilePage() {
         }
     };
     
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0 || !user) {
+            return;
+        }
+        const file = e.target.files[0];
+        setIsUploading(true);
+
+        try {
+            const storageRef = ref(storage, `avatars/${user.uid}/${file.name}`);
+            const snapshot = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+
+            // Update state and Firebase
+            setAvatarUrl(downloadURL);
+            await updateProfile(auth.currentUser!, { photoURL: downloadURL });
+            const userDocRef = doc(db, 'users', user.uid);
+            await setDoc(userDocRef, { avatarUrl: downloadURL }, { merge: true });
+            
+            toast({
+                title: 'Avatar Updated!',
+                description: 'Your new avatar has been saved.',
+            });
+        } catch (error) {
+             console.error('Error uploading avatar:', error);
+             toast({
+                title: 'Upload Error',
+                description: 'Failed to upload new avatar.',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     if (authLoading || pageLoading || !user) {
         return (
              <div>
@@ -132,10 +174,24 @@ export default function ProfilePage() {
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-4">
                         <Avatar className="h-20 w-20">
-                            <AvatarImage src={user.photoURL || `https://placehold.co/100x100`} data-ai-hint="user avatar" alt={name} />
+                            <AvatarImage src={avatarUrl || `https://placehold.co/100x100`} data-ai-hint="user avatar" alt={name} />
                             <AvatarFallback>{name.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <Button variant="outline" disabled>Change Avatar (soon)</Button>
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            hidden 
+                            accept="image/png, image/jpeg"
+                            onChange={handleAvatarChange}
+                        />
+                        <Button 
+                            variant="outline" 
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploading}
+                        >
+                            {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {isUploading ? "Uploading..." : "Change Avatar"}
+                        </Button>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
@@ -154,6 +210,7 @@ export default function ProfilePage() {
                 </CardContent>
                 <CardFooter className="border-t px-6 py-4">
                     <Button onClick={handleUpdateProfile} disabled={isSaving}>
+                        {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         {isSaving ? 'Saving...' : 'Update Profile'}
                     </Button>
                 </CardFooter>
