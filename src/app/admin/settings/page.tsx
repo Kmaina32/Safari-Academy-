@@ -10,10 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { Switch } from '@/components/ui/switch';
-import type { AppSettings } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import { clearSettingsCache } from '@/app/ClientAppLayout';
 
 
 interface HomePageSettings {
@@ -30,10 +27,6 @@ export default function AdminSettingsPage() {
         heroImageUrl: '',
         authBackgroundImageUrl: '',
     });
-    const [appSettings, setAppSettings] = useState<AppSettings>({
-        maintenanceMode: false,
-        maintenanceEndTime: new Date().toISOString(),
-    })
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
 
@@ -45,18 +38,6 @@ export default function AdminSettingsPage() {
                 const homepageDocSnap = await getDoc(homepageDocRef);
                 if (homepageDocSnap.exists()) {
                     setHomepageSettings(homepageDocSnap.data() as HomePageSettings);
-                }
-
-                const appDocRef = doc(db, "settings", "app");
-                const appDocSnap = await getDoc(appDocRef);
-                if(appDocSnap.exists()) {
-                    setAppSettings(appDocSnap.data() as AppSettings);
-                } else {
-                    // Set default to off if no settings document exists
-                    setAppSettings({
-                        maintenanceMode: false,
-                        maintenanceEndTime: new Date().toISOString(),
-                    })
                 }
 
             } catch (error) {
@@ -90,26 +71,6 @@ export default function AdminSettingsPage() {
             });
         }
     };
-
-    const handleSavePlatform = async () => {
-         try {
-            const docRef = doc(db, "settings", "app");
-            await setDoc(docRef, appSettings, { merge: true });
-            clearSettingsCache(); // Invalidate the cache
-            toast({
-                title: "Platform Settings Saved!",
-                description: "Your platform settings have been updated and will take effect immediately.",
-            });
-        } catch (error) {
-            console.error("Error saving settings: ", error);
-            toast({
-                title: "Error",
-                description: "There was an error saving your platform settings.",
-                variant: "destructive",
-            });
-        }
-    }
-
 
     if (loading) {
         return <div>Loading settings...</div>;
@@ -165,39 +126,6 @@ export default function AdminSettingsPage() {
         </CardContent>
          <CardFooter className="border-t px-6 py-4">
             <Button onClick={handleSaveHomepage}>Save Homepage Settings</Button>
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader>
-            <CardTitle>Platform Settings</CardTitle>
-            <CardDescription>Manage your e-learning platform's global settings.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                    <Label>Maintenance Mode</Label>
-                    <p className="text-xs text-muted-foreground">Temporarily disable access to the platform for non-admins.</p>
-                </div>
-                <Switch 
-                    checked={appSettings.maintenanceMode}
-                    onCheckedChange={(checked) => setAppSettings(prev => ({...prev, maintenanceMode: checked}))}
-                />
-            </div>
-             <div className="space-y-2">
-                <Label htmlFor="maintenance-end-time">Maintenance End Time</Label>
-                <Input 
-                    id="maintenance-end-time" 
-                    type="datetime-local"
-                    value={appSettings.maintenanceEndTime.substring(0,16)}
-                    onChange={(e) => setAppSettings(prev => ({...prev, maintenanceEndTime: new Date(e.target.value).toISOString()}))}
-                    disabled={!appSettings.maintenanceMode}
-                />
-                <p className="text-xs text-muted-foreground">Set the time when maintenance mode will automatically turn off.</p>
-            </div>
-        </CardContent>
-        <CardFooter className="border-t px-6 py-4">
-            <Button onClick={handleSavePlatform}>Save Platform Settings</Button>
         </CardFooter>
       </Card>
     </div>

@@ -90,8 +90,3 @@ export type Certificate = {
         nanoseconds: number;
     };
 }
-
-export type AppSettings = {
-    maintenanceMode: boolean;
-    maintenanceEndTime: string;
-}
