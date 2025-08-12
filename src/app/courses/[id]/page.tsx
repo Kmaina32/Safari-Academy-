@@ -1,3 +1,4 @@
+
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -70,8 +71,14 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
           <div className="sticky top-24">
             <div className="border rounded-lg bg-card text-card-foreground p-6 shadow-lg">
                 <div className="flex items-center gap-2 text-2xl font-bold mb-4">
-                    <span className="text-primary">$49.99</span>
-                    <span className="text-base font-normal text-muted-foreground line-through">$99.99</span>
+                     {course.price > 0 ? (
+                        <>
+                            <span className="text-primary">${course.price.toFixed(2)}</span>
+                            <span className="text-base font-normal text-muted-foreground line-through">${(course.price * 1.5).toFixed(2)}</span>
+                        </>
+                    ) : (
+                        <span className="text-primary">Free</span>
+                    )}
                 </div>
                 <Button size="lg" className="w-full mb-4" asChild>
                   <Link href={`/courses/${course.id}/learn`}>Enroll Now</Link>

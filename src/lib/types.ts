@@ -12,6 +12,7 @@ export type Course = {
   rating: number;
   enrolledStudents: number;
   modules: Module[];
+  price: number; // 0 for free
 };
 
 export type Lesson = {
