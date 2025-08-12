@@ -51,7 +51,7 @@ const prompt = ai.definePrompt({
 
 The course must be thorough and in-depth. It should contain at least 5 distinct modules. Each module must contain multiple, logically-sequenced lessons.
 
-For each lesson, provide a detailed, paragraph-long content summary that could serve as a script or detailed outline.
+For each lesson, provide a detailed, paragraph-long content summary that could serve as a script or detailed outline. For each lesson, also find and include a relevant, public YouTube video URL that could serve as a visual aid for the lesson content.
 
 Create a course about: {{{topic}}}
 
@@ -70,3 +70,4 @@ const courseGeneratorFlow = ai.defineFlow(
     return output!;
   }
 );
+

@@ -2,7 +2,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useFieldArray } from "react-hook-form"
+import { useForm, useFieldArray, type UseFormReturn } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -39,7 +39,7 @@ const moduleSchema = z.object({
     lessons: z.array(lessonSchema).min(1, "Each module must have at least one lesson."),
 })
 
-const formSchema = z.object({
+export const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
   longDescription: z.string().min(20, "Long description must be at least 20 characters."),
@@ -54,27 +54,15 @@ const formSchema = z.object({
     path: ["price"],
 })
 
+export type CourseFormValues = z.infer<typeof formSchema>;
+
 interface CourseFormProps {
     onCourseAdded: () => void;
+    form: UseFormReturn<CourseFormValues>
 }
 
-export function CourseForm({ onCourseAdded }: CourseFormProps) {
+export function CourseForm({ onCourseAdded, form }: CourseFormProps) {
   const { toast } = useToast()
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      longDescription: "",
-      instructor: "",
-      category: "",
-      duration: "",
-      isFree: false,
-      price: 29.99,
-      modules: [{ title: "Module 1", imageUrl: "https://placehold.co/600x400", lessons: [{ title: "Lesson 1", content: "", videoUrl: "" }] }],
-    },
-  })
 
   const { fields: moduleFields, append: appendModule, remove: removeModule } = useFieldArray({
     control: form.control,
@@ -89,7 +77,7 @@ export function CourseForm({ onCourseAdded }: CourseFormProps) {
         const allLessons = values.modules.flatMap((m, moduleIndex) => m.lessons.map((l, lessonIndex) => ({
             ...l,
             id: `m${moduleIndex+1}-l${lessonIndex+1}`,
-            duration: `${Math.floor(Math.random() * 10) + 5} min` // Random duration for now
+            duration: l.duration || `${Math.floor(Math.random() * 10) + 5} min`
         })));
 
         await addDoc(collection(db, "courses"), {
@@ -104,7 +92,7 @@ export function CourseForm({ onCourseAdded }: CourseFormProps) {
                 lessons: m.lessons.map((l, lessonIndex) => ({
                     ...l,
                      id: `m${moduleIndex+1}-l${lessonIndex+1}`,
-                     duration: `${Math.floor(Math.random() * 10) + 5} min`
+                     duration: l.duration || `${Math.floor(Math.random() * 10) + 5} min`
                 }))
             })),
         });
@@ -127,7 +115,7 @@ export function CourseForm({ onCourseAdded }: CourseFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <ScrollArea className="h-[calc(100vh-20rem)] pr-4">
+        <ScrollArea className="h-[calc(100vh-28rem)] pr-4">
         <div className="space-y-6">
             <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="Introduction to Web Development" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Short Description</FormLabel><FormControl><Textarea placeholder="A brief summary of the course..." {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -234,3 +222,4 @@ function LessonArray({ moduleIndex, control }: { moduleIndex: number; control: a
     </div>
   )
 }
+
