@@ -28,9 +28,9 @@ import Link from 'next/link';
 import { Logo } from '@/components/shared/Logo';
 import { Progress } from '@/components/ui/progress';
 
-export default function CourseLearnPage({ params: { id } }: { params: { id: string } }) {
+export default function CourseLearnPage({ params }: { params: { id: string } }) {
   const searchParams = useSearchParams();
-  const course = courses.find((c) => c.id === id);
+  const course = courses.find((c) => c.id === params.id);
 
   if (!course) {
     notFound();
