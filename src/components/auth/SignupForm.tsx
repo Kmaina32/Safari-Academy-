@@ -64,6 +64,7 @@ export function SignupForm() {
         name: values.name,
         email: values.email,
         phone: values.phone,
+        role: "Student",
         createdAt: new Date(),
       });
 

@@ -1,16 +1,30 @@
+'use client';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { User } from '@/lib/types';
 
-const users = [
-    { id: 'user-1', name: 'Alex Doe', email: 'alex.doe@example.com', role: 'Student', enrolled: 2 },
-    { id: 'user-2', name: 'Jane Smith', email: 'jane.smith@example.com', role: 'Student', enrolled: 5 },
-    { id: 'user-3', name: 'Admin User', email: 'admin@example.com', role: 'Admin', enrolled: 0 },
-];
 
 export default function AdminUsersPage() {
+    const [users, setUsers] = useState<User[]>([]);
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
+            const usersData: User[] = [];
+            snapshot.forEach((doc) => {
+                usersData.push({ id: doc.id, ...doc.data() } as User);
+            });
+            setUsers(usersData);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     return (
         <Card>
             <CardHeader>
@@ -34,7 +48,7 @@ export default function AdminUsersPage() {
                                 <TableCell className="font-medium">{user.name}</TableCell>
                                 <TableCell>{user.email}</TableCell>
                                 <TableCell>{user.role}</TableCell>
-                                <TableCell>{user.enrolled}</TableCell>
+                                <TableCell>{0}</TableCell>
                                 <TableCell className="text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>

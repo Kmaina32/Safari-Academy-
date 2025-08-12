@@ -1,7 +1,10 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Users, BookOpen, DollarSign } from "lucide-react";
-import { LineChart, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line, PieChart, Pie, Cell } from "recharts";
+import { LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line, PieChart, Pie, Cell } from "recharts";
+import React, { useState, useEffect } from 'react';
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const monthlyRevenue = [
   { month: 'Jan', revenue: 4000 },
@@ -23,6 +26,23 @@ const COLORS = ['#31AD48', '#D4A944', '#4A90E2', '#8B5CF6'];
 
 
 export default function AdminAnalyticsPage() {
+  const [userCount, setUserCount] = useState(0);
+  const [courseCount, setCourseCount] = useState(0);
+
+  useEffect(() => {
+    const usersUnsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
+      setUserCount(snapshot.size);
+    });
+    const coursesUnsubscribe = onSnapshot(collection(db, "courses"), (snapshot) => {
+      setCourseCount(snapshot.size);
+    });
+
+    return () => {
+      usersUnsubscribe();
+      coursesUnsubscribe();
+    };
+  }, []);
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold font-headline">Analytics Overview</h1>
@@ -43,8 +63,8 @@ export default function AdminAnalyticsPage() {
                 <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">+2,350</div>
-                <p className="text-xs text-muted-foreground">+180.1% from last month</p>
+                <div className="text-2xl font-bold">{userCount}</div>
+                <p className="text-xs text-muted-foreground">Total registered users</p>
             </CardContent>
         </Card>
         <Card>
@@ -53,8 +73,8 @@ export default function AdminAnalyticsPage() {
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">48</div>
-                <p className="text-xs text-muted-foreground">+5 from last month</p>
+                <div className="text-2xl font-bold">{courseCount}</div>
+                <p className="text-xs text-muted-foreground">Total courses on platform</p>
             </CardContent>
         </Card>
       </div>
