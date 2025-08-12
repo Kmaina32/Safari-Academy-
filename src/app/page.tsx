@@ -47,7 +47,8 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col gap-16 md:gap-24">
-      <section className="relative pt-16 md:pt-24 pb-16 md:pb-24">
+      <section className="container mx-auto px-4 pt-8">
+        <div className="relative rounded-lg overflow-hidden pt-16 md:pt-24 pb-16 md:pb-24">
          <div className="absolute inset-0 z-0">
              <Image 
                 src={settings.heroImageUrl}
@@ -73,6 +74,7 @@ export default async function Home() {
               </Link>
             </Button>
           </div>
+        </div>
         </div>
       </section>
 
