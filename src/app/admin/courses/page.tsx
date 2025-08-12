@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, ArrowUpDown, Trash2 } from "lucide-react";
+import { MoreHorizontal, PlusCircle, ArrowUpDown, Trash2, Sparkles } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -65,12 +65,20 @@ export default function AdminCoursesPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold font-headline">Courses</h1>
-                 <Button asChild>
-                    <Link href="/admin/courses/new">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Add New Course
-                    </Link>
-                </Button>
+                 <div className="flex items-center gap-2">
+                    <Button variant="outline" asChild>
+                        <Link href="/admin/courses/generate">
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Generate with AI
+                        </Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href="/admin/courses/new">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add New Course
+                        </Link>
+                    </Button>
+                 </div>
             </div>
             <Card>
                 <CardHeader>
@@ -137,7 +145,7 @@ export default function AdminCoursesPage() {
                                                     <AlertDialogDescription>
                                                         This action cannot be undone. This will permanently delete the course
                                                         and remove all associated data.
-                                                    </AlertDialogDescription>
+                                                    </Description>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -153,5 +161,5 @@ export default function AdminCoursesPage() {
                 </CardContent>
             </Card>
         </div>
-    )
+    );
 }

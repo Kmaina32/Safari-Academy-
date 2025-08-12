@@ -192,31 +192,6 @@ export default function AdminSettingsPage() {
         </CardFooter>
       </Card>
 
-        <Card>
-            <CardHeader>
-                <CardTitle>Database Management</CardTitle>
-                <CardDescription>Use AI to generate comprehensive course content for a given topic.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                 <div className="flex items-center gap-4 rounded-lg border p-4">
-                    <div className="flex-1 space-y-2">
-                        <Label htmlFor="course-topic">Course Topic</Label>
-                        <Input 
-                            id="course-topic" 
-                            placeholder="e.g., 'Introduction to Quantum Physics'"
-                            value={courseTopic}
-                            onChange={(e) => setCourseTopic(e.target.value)}
-                            disabled={generating}
-                        />
-                    </div>
-                   <Button variant="secondary" onClick={handleGenerateCourse} disabled={generating}>
-                        {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        {generating ? 'Generating...' : 'Generate Course'}
-                   </Button>
-                </div>
-            </CardContent>
-        </Card>
-
       <Card>
         <CardHeader>
             <CardTitle>Platform Settings</CardTitle>
