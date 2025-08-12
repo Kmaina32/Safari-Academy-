@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AlignJustify, Bell, Home, LogOut, Settings, User, Shield, LayoutDashboard, FileText, Award } from 'lucide-react';
+import { AlignJustify, Bell, Home, LogOut, Settings, User, Shield, LayoutDashboard, FileText, Award, Wrench } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -47,6 +47,7 @@ const adminNavLinks = [
     { href: '/admin/analytics', label: 'Analytics'},
     { href: '/admin/discussions', label: 'Discussions'},
     { href: '/admin/assignments', label: 'Assignments'},
+    { href: '/admin/maintenance', label: 'Maintenance'},
     { href: '/admin/settings', label: 'Settings'},
 ]
 

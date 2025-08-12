@@ -1,4 +1,5 @@
 
+
 export type Course = {
   id?: string;
   title: string;
@@ -89,4 +90,13 @@ export type Certificate = {
         seconds: number;
         nanoseconds: number;
     };
+}
+
+export type MaintenanceSettings = {
+    isEnabled: boolean;
+    endTime: {
+        seconds: number;
+        nanoseconds: number;
+    } | null;
+    message: string;
 }
