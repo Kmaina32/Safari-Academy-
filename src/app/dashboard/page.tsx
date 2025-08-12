@@ -1,13 +1,14 @@
 
 'use client';
 import React from 'react';
-import { EnrolledCourseCard } from "@/components/dashboard/EnrolledCourseCard";
+import { EnrolledCourseCard, EnrolledCourseCardSkeleton } from "@/components/dashboard/EnrolledCourseCard";
 import { useAuth } from '@/hooks/use-auth';
 import { collection, getDocs, query, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course, EnrolledCourse as EnrolledCourseType } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Skeleton } from '@/components/ui/skeleton';
 
 async function getDemoCourses(): Promise<(Course & Partial<EnrolledCourseType>)[]> {
     try {
@@ -32,6 +33,25 @@ async function getDemoCourses(): Promise<(Course & Partial<EnrolledCourseType>)[
     }
 }
 
+function DashboardSkeleton() {
+    return (
+        <div>
+            <Skeleton className="h-9 w-1/2 mb-2" />
+            <Skeleton className="h-5 w-1/3 mb-8" />
+            <div className="space-y-8">
+                <div>
+                    <Skeleton className="h-8 w-1/4 mb-4" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <EnrolledCourseCardSkeleton />
+                        <EnrolledCourseCardSkeleton />
+                        <EnrolledCourseCardSkeleton />
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 export default function DashboardPage() {
     const { user } = useAuth();
     const [userEnrolledCourses, setUserEnrolledCourses] = React.useState<(Course & Partial<EnrolledCourseType>)[]>([]);
@@ -49,7 +69,7 @@ export default function DashboardPage() {
     }, []);
 
     if (loading) {
-        return <div>Loading your dashboard...</div>
+        return <DashboardSkeleton />;
     }
 
   return (

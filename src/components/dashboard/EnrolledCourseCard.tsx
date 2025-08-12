@@ -1,3 +1,4 @@
+
 import type { Course, EnrolledCourse } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { PlayCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Skeleton } from '../ui/skeleton';
 
 interface EnrolledCourseCardProps {
   course: Course & EnrolledCourse;
@@ -44,6 +46,29 @@ export function EnrolledCourseCard({ course }: EnrolledCourseCardProps) {
                 Continue Learning
             </Link>
         </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
+export function EnrolledCourseCardSkeleton() {
+  return (
+    <Card className="flex flex-col overflow-hidden">
+      <CardHeader className="p-0">
+        <Skeleton className="w-full h-40" />
+        <div className="p-4 pb-2 space-y-2">
+          <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+        </div>
+      </CardHeader>
+      <CardContent className="flex-grow p-4 pt-0">
+        <div className="space-y-2">
+          <Skeleton className="h-2 w-full" />
+          <Skeleton className="h-3 w-1/3" />
+        </div>
+      </CardContent>
+      <CardFooter className="p-4 pt-0">
+        <Skeleton className="h-9 w-full" />
       </CardFooter>
     </Card>
   );
