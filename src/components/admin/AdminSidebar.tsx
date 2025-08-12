@@ -44,7 +44,7 @@ export function AdminSidebar() {
     >
       <SidebarHeader className="h-16 flex items-center justify-between p-2">
         <Logo />
-        <SidebarTrigger asChild>
+        <SidebarTrigger>
           <Button variant="ghost" size="icon">
             <ChevronLeft />
           </Button>
