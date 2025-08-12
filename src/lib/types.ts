@@ -50,18 +50,30 @@ export type Question = {
     correctAnswer: number; // index of the correct option
 }
 
-export type Quiz = {
+export type Assignment = {
     id?: string;
     title: string;
     courseId: string;
     questions: Question[];
 }
 
-export type QuizSubmission = {
+export type AssignmentSubmission = {
     id?: string;
-    quizId: string;
+    assignmentId: string;
     userId: string;
     answers: number[]; // array of selected option indices
     score: number; // percentage
     submittedAt: Date;
+}
+
+export type Payment = {
+    id?: string;
+    userId: string;
+    courseId: string;
+    amount: number;
+    currency: string; // e.g., 'USD'
+    status: 'succeeded' | 'pending' | 'failed';
+    paymentMethod: string; // e.g., 'card', 'paypal'
+    transactionId: string; // From the payment provider
+    createdAt: Date;
 }

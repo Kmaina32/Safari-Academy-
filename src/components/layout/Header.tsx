@@ -35,7 +35,7 @@ const loggedOutNavLinks = [
 const loggedInNavLinks = [
   { href: '/courses', label: 'Courses' },
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/dashboard/quizzes', label: 'Assignments' },
+  { href: '/dashboard/assignments', label: 'Assignments' },
 ];
 
 const adminNavLinks = [
@@ -44,7 +44,7 @@ const adminNavLinks = [
     { href: '/admin/users', label: 'Users'},
     { href: '/admin/analytics', label: 'Analytics'},
     { href: '/admin/discussions', label: 'Discussions'},
-    { href: '/admin/quizzes', label: 'Quizzes'},
+    { href: '/admin/assignments', label: 'Assignments'},
     { href: '/admin/settings', label: 'Settings'},
 ]
 
