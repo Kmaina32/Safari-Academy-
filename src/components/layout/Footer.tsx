@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export function Footer() {
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur-sm">
+    <footer className="absolute bottom-0 w-full border-t bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <p className="text-muted-foreground text-sm">&copy; {new Date().getFullYear()} Safari Academy. All rights reserved.</p>
