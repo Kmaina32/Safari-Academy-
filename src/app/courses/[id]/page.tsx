@@ -1,4 +1,6 @@
 
+'use client';
+
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -11,33 +13,42 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course } from '@/lib/types';
 
 
-async function getCourse(id: string): Promise<Course | null> {
-  try {
-    const docRef = doc(db, "courses", id);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-        return { id: docSnap.id, ...docSnap.data() } as Course;
-    } else {
-        console.log("No such document!");
-        return null;
-    }
-  } catch (error) {
-    console.error("Error fetching course:", error);
-    return null; // Return null on error
-  }
-}
-
-
-export default async function CourseDetailPage({ params }: { params: { id: string } }) {
+export default function CourseDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const course = await getCourse(id);
+  const [course, setCourse] = React.useState<Course | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  React.useEffect(() => {
+    async function getCourse(id: string): Promise<void> {
+        try {
+            const docRef = doc(db, "courses", id);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                setCourse({ id: docSnap.id, ...docSnap.data() } as Course);
+            } else {
+                console.log("No such document!");
+                setCourse(null);
+            }
+        } catch (error) {
+            console.error("Error fetching course:", error);
+            setCourse(null);
+        } finally {
+            setLoading(false);
+        }
+    }
+    getCourse(id);
+  }, [id]);
+
+  if (loading) {
+      return <div>Loading...</div>
+  }
 
   if (!course) {
     notFound();
@@ -45,6 +56,9 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
   
   // Fallback for modules/lessons if they don't exist
   const modules = course.modules || [];
+  const longDescription = course.longDescription || '';
+  const needsTruncation = longDescription.length > 300;
+
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -64,7 +78,14 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
           <h1 className="text-3xl md:text-4xl font-bold font-headline mb-2">{course.title}</h1>
           <p className="text-lg text-muted-foreground mb-6">{course.description}</p>
           <div className="prose max-w-none text-foreground">
-            <p>{course.longDescription}</p>
+            <p className={isExpanded ? '' : 'line-clamp-4'}>
+                {longDescription}
+            </p>
+             {needsTruncation && (
+              <Button variant="link" onClick={() => setIsExpanded(!isExpanded)} className="px-0">
+                {isExpanded ? 'Read Less' : 'Read More...'}
+              </Button>
+            )}
           </div>
         </div>
         <div>

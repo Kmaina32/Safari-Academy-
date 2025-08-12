@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -31,6 +32,38 @@ interface Discussion {
     avatar?: string;
 }
 
+const DiscussionItem = ({ discussion }: { discussion: Discussion }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const needsTruncation = discussion.comment.length > 150;
+
+    const formatTimestamp = (timestamp: { seconds: number, nanoseconds: number }) => {
+        if (!timestamp) return 'Just now';
+        const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
+        return formatDistanceToNow(date, { addSuffix: true });
+    }
+
+    return (
+        <div className="flex gap-4">
+            <Avatar>
+                <AvatarImage src={discussion.avatar} />
+                <AvatarFallback>{discussion.user.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+                <div className="flex justify-between items-center">
+                    <p className="font-semibold">{discussion.user} <span className="font-normal text-muted-foreground">on {discussion.course}</span></p>
+                    <p className="text-xs text-muted-foreground">{formatTimestamp(discussion.createdAt)}</p>
+                </div>
+                <p className={`text-sm mt-1 ${isExpanded ? '' : 'line-clamp-2'}`}>{discussion.comment}</p>
+                {needsTruncation && (
+                    <Button variant="link" size="sm" onClick={() => setIsExpanded(!isExpanded)} className="px-0 h-auto">
+                        {isExpanded ? 'Show Less' : 'Show More'}
+                    </Button>
+                )}
+            </div>
+        </div>
+    )
+}
+
 export default function AdminDiscussionsPage() {
     const [discussions, setDiscussions] = useState<Discussion[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -47,12 +80,6 @@ export default function AdminDiscussionsPage() {
 
         return () => unsubscribe();
     }, []);
-
-    const formatTimestamp = (timestamp: { seconds: number, nanoseconds: number }) => {
-        if (!timestamp) return 'Just now';
-        const date = new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000);
-        return formatDistanceToNow(date, { addSuffix: true });
-    }
 
     const handleDiscussionAdded = () => {
         setIsDialogOpen(false);
@@ -92,19 +119,7 @@ export default function AdminDiscussionsPage() {
                 </div>
             )}
             {discussions.map(d => (
-                <div key={d.id} className="flex gap-4">
-                    <Avatar>
-                        <AvatarImage src={d.avatar} />
-                        <AvatarFallback>{d.user.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                        <div className="flex justify-between items-center">
-                            <p className="font-semibold">{d.user} <span className="font-normal text-muted-foreground">on {d.course}</span></p>
-                            <p className="text-xs text-muted-foreground">{formatTimestamp(d.createdAt)}</p>
-                        </div>
-                        <p className="text-sm mt-1">{d.comment}</p>
-                    </div>
-                </div>
+                <DiscussionItem key={d.id} discussion={d} />
             ))}
         </div>
       </CardContent>
