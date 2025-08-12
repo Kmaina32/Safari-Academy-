@@ -13,7 +13,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course } from '@/lib/types';
@@ -26,8 +26,9 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = React.useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function getCourse(id: string): Promise<void> {
+        setLoading(true);
         try {
             const docRef = doc(db, "courses", id);
             const docSnap = await getDoc(docRef);
@@ -46,6 +47,8 @@ export default function CourseDetailPage() {
     }
     if (id) {
         getCourse(id);
+    } else {
+        setLoading(false);
     }
   }, [id]);
 
