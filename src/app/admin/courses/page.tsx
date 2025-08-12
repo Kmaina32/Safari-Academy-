@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLab
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course } from '@/lib/types';
 import {

@@ -39,6 +39,23 @@ interface CourseFormProps {
     onCourseAdded: () => void;
 }
 
+const generateLessons = (moduleId: number) => {
+    return Array.from({length: 5}, (_, i) => ({
+        id: `m${moduleId}-l${i+1}`,
+        title: `Lesson ${i+1} of Module ${moduleId}`,
+        duration: `${Math.floor(Math.random() * 10) + 5} min`,
+        content: `This is the detailed content for lesson ${i+1}. Students will learn key concepts and practical skills.`,
+        videoUrl: ''
+    }))
+}
+
+const generateModules = () => {
+    return Array.from({length: 3}, (_, i) => ({
+        title: `Module ${i+1}: Getting Started`,
+        lessons: generateLessons(i+1)
+    }))
+}
+
 export function CourseForm({ onCourseAdded }: CourseFormProps) {
   const { toast } = useToast()
 
@@ -56,13 +73,16 @@ export function CourseForm({ onCourseAdded }: CourseFormProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+        const modules = generateModules();
+        const allLessons = modules.flatMap(m => m.lessons);
+
         await addDoc(collection(db, "courses"), {
             ...values,
             imageUrl: `https://placehold.co/600x400?text=${values.title.replace(/\s/g, '+')}`,
-            rating: 0,
-            enrolledStudents: 0,
-            lessons: [],
-            modules: [],
+            rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10, // Random rating between 3.5 and 5.0
+            enrolledStudents: Math.floor(Math.random() * 1000),
+            lessons: allLessons,
+            modules: modules,
         });
         toast({
             title: "Course Created!",

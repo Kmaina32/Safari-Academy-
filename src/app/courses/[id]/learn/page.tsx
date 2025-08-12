@@ -17,7 +17,7 @@ import { db } from '@/lib/firebase';
 import type { Course } from '@/lib/types';
 
 export default function CourseLearnPage({ params }: { params: { id: string } }) {
-  const { id } = params; // No need for React.use(params)
+  const { id } = params;
   const searchParams = useSearchParams();
   const [course, setCourse] = React.useState<Course | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -25,17 +25,18 @@ export default function CourseLearnPage({ params }: { params: { id: string } }) 
   React.useEffect(() => {
     if (id) {
       const getCourse = async () => {
+        setLoading(true);
         try {
           const docRef = doc(db, 'courses', id);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             setCourse({ id: docSnap.id, ...docSnap.data() } as Course);
           } else {
-            notFound();
+            setCourse(null)
           }
         } catch (error) {
           console.error("Error fetching course:", error);
-          // Handle error, maybe show a toast or an error message
+          setCourse(null)
         } finally {
           setLoading(false);
         }
@@ -71,7 +72,6 @@ export default function CourseLearnPage({ params }: { params: { id: string } }) 
   }
 
   const currentLessonIndex = course.lessons.findIndex(l => l.id === lessonId);
-
   const nextLesson = currentLessonIndex < course.lessons.length -1 ? course.lessons[currentLessonIndex + 1] : null;
   const prevLesson = currentLessonIndex > 0 ? course.lessons[currentLessonIndex - 1] : null;
   const progress = ((currentLessonIndex + 1) / course.lessons.length) * 100;
