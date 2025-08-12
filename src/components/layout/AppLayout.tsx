@@ -10,17 +10,28 @@ import { AuthProvider } from '@/hooks/use-auth';
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdminPage = pathname.startsWith('/admin');
-  const noFooterPages = ['/login', '/signup', '/forgot-password'];
-  const hideFooter = isAdminPage || noFooterPages.includes(pathname);
+  const noLayoutPages = ['/login', '/signup', '/forgot-password'];
+  const hideFooter = noLayoutPages.includes(pathname);
+  const hideHeader = noLayoutPages.includes(pathname);
+  
+  if (noLayoutPages.includes(pathname)) {
+    return (
+       <AuthProvider>
+        <main>{children}</main>
+        <Toaster />
+      </AuthProvider>
+    )
+  }
 
   return (
     <AuthProvider>
         <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
+            {!hideHeader && <Header />}
+            <main className="flex-1 pb-16">{children}</main>
             {!hideFooter && <Footer />}
             <Toaster />
         </div>
     </AuthProvider>
   );
 }
+
