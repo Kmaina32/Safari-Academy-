@@ -6,6 +6,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { formatDistanceToNow } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { PlusCircle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { DiscussionForm } from '@/components/admin/DiscussionForm';
+
 
 interface Discussion {
     id: string;
@@ -21,6 +33,7 @@ interface Discussion {
 
 export default function AdminDiscussionsPage() {
     const [discussions, setDiscussions] = useState<Discussion[]>([]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     useEffect(() => {
         const q = query(collection(db, "discussions"), orderBy("createdAt", "desc"));
@@ -41,16 +54,42 @@ export default function AdminDiscussionsPage() {
         return formatDistanceToNow(date, { addSuffix: true });
     }
 
+    const handleDiscussionAdded = () => {
+        setIsDialogOpen(false);
+    }
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Discussions</CardTitle>
-        <CardDescription>Moderate and manage user discussions.</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+            <CardTitle>Discussions</CardTitle>
+            <CardDescription>Moderate and manage user discussions.</CardDescription>
+        </div>
+         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+                <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    New Discussion
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Create New Discussion</DialogTitle>
+                    <DialogDescription>
+                        Fill in the details below to post a new discussion thread.
+                    </DialogDescription>
+                </DialogHeader>
+                <DiscussionForm onDiscussionAdded={handleDiscussionAdded}/>
+            </DialogContent>
+        </Dialog>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
             {discussions.length === 0 && (
-                <p className="text-muted-foreground text-center">No discussions yet.</p>
+                <div className="text-muted-foreground text-center py-8">
+                    <p>No discussions yet.</p>
+                    <p className="text-sm">Start a new one to get the conversation going!</p>
+                </div>
             )}
             {discussions.map(d => (
                 <div key={d.id} className="flex gap-4">
