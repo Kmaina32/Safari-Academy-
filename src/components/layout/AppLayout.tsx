@@ -7,6 +7,8 @@ import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider, useAuth } from '@/hooks/use-auth';
 import { AppLoader } from '../shared/AppLoader';
+import { ThemeProvider } from "next-themes";
+
 
 function LayoutManager({ children }: { children: React.ReactNode }) {
     const { loading } = useAuth();
@@ -41,7 +43,14 @@ function LayoutManager({ children }: { children: React.ReactNode }) {
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
      <AuthProvider>
-        <LayoutManager>{children}</LayoutManager>
+       <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <LayoutManager>{children}</LayoutManager>
+        </ThemeProvider>
     </AuthProvider>
   )
 }

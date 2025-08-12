@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/sheet"
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
+import { ThemeToggle } from './ThemeToggle';
 
 
 const loggedOutNavLinks = [
@@ -183,6 +184,7 @@ export function Header() {
                         <span>Settings</span>
                       </Link>
                     </DropdownMenuItem>
+                    <ThemeToggle />
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
