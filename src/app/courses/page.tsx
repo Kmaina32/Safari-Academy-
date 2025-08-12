@@ -1,27 +1,12 @@
 
 'use client';
 import { CourseCard } from '@/components/courses/CourseCard';
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course } from '@/lib/types';
 import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
-
-async function getCourses(): Promise<Course[]> {
-  try {
-    const querySnapshot = await getDocs(collection(db, "courses"));
-    const courses: Course[] = [];
-    querySnapshot.forEach((doc) => {
-      courses.push({ id: doc.id, ...doc.data() } as Course);
-    });
-    return courses;
-  } catch (error) {
-    console.error("Error fetching courses:", error);
-    // Propagate the error to be caught by the component
-    throw error;
-  }
-}
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -29,18 +14,25 @@ export default function CoursesPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadCourses() {
-      try {
-        const fetchedCourses = await getCourses();
-        setCourses(fetchedCourses);
-      } catch (err: any) {
+    const unsubscribe = onSnapshot(collection(db, "courses"), 
+      (querySnapshot) => {
+        const coursesData: Course[] = [];
+        querySnapshot.forEach((doc) => {
+          coursesData.push({ id: doc.id, ...doc.data() } as Course);
+        });
+        setCourses(coursesData);
+        setLoading(false);
+        setError(null);
+      }, 
+      (err) => {
+        console.error("Error fetching courses:", err);
         setError("Could not fetch courses. Please ensure Firestore permissions are set up correctly.");
-        console.error(err);
-      } finally {
         setLoading(false);
       }
-    }
-    loadCourses();
+    );
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   return (
