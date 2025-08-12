@@ -27,11 +27,18 @@ export default function AdminSettingsPage() {
 
     useEffect(() => {
         const fetchSettings = async () => {
+            setLoading(true);
             try {
                 const docRef = doc(db, "settings", "homepage");
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     setSettings(docSnap.data() as HomePageSettings);
+                } else {
+                    // Initialize with default values if no settings exist
+                    setSettings({
+                        heroTitle: "Unlock Your Potential with Safari Academy",
+                        heroSubtitle: "Explore a world of knowledge with our expert-led courses...",
+                    });
                 }
             } catch (error) {
                 console.error("Error fetching settings:", error);
