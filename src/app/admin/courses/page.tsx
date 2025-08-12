@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,20 +11,11 @@ import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course } from '@/lib/types';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { CourseForm } from "@/components/admin/CourseForm";
+import Link from 'next/link';
 
 
 export default function AdminCoursesPage() {
     const [courses, setCourses] = useState<Course[]>([]);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     useEffect(() => {
         const q = collection(db, "courses");
@@ -38,31 +30,16 @@ export default function AdminCoursesPage() {
         return () => unsubscribe();
     }, []);
 
-    const handleCourseAdded = () => {
-        setIsDialogOpen(false);
-    }
-
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold font-headline">Courses</h1>
-                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                         <Button>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Add New Course
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                        <DialogTitle>Add New Course</DialogTitle>
-                        <DialogDescription>
-                            Fill in the details below to create a new course.
-                        </DialogDescription>
-                        </DialogHeader>
-                        <CourseForm onCourseAdded={handleCourseAdded}/>
-                    </DialogContent>
-                </Dialog>
+                 <Button asChild>
+                    <Link href="/admin/courses/new">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add New Course
+                    </Link>
+                </Button>
             </div>
             <Card>
                 <CardHeader>
