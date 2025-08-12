@@ -1,6 +1,6 @@
 
 'use client';
-
+import React from 'react';
 import { courses } from '@/lib/data';
 import { notFound, useSearchParams } from 'next/navigation';
 import {
@@ -27,9 +27,10 @@ import Link from 'next/link';
 import { Logo } from '@/components/shared/Logo';
 import { Progress } from '@/components/ui/progress';
 
-export default function CourseLearnPage({ params }: { params: { id: string } }) {
+export default function CourseLearnPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
   const searchParams = useSearchParams();
-  const course = courses.find((c) => c.id === params.id);
+  const course = courses.find((c) => c.id === id);
 
   if (!course) {
     notFound();

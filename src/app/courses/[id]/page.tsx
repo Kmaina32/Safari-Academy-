@@ -11,9 +11,10 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import Link from 'next/link';
+import React from 'react';
 
-export default async function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = React.use(params);
   const course = courses.find((c) => c.id === id);
 
   if (!course) {
