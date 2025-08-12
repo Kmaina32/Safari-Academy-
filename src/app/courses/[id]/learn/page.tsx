@@ -17,27 +17,41 @@ import { db } from '@/lib/firebase';
 import type { Course } from '@/lib/types';
 
 export default function CourseLearnPage({ params }: { params: { id: string } }) {
-  const { id } = React.use(params);
+  const { id } = params; // No need for React.use(params)
   const searchParams = useSearchParams();
   const [course, setCourse] = React.useState<Course | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     if (id) {
       const getCourse = async () => {
-        const docRef = doc(db, 'courses', id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setCourse({ id: docSnap.id, ...docSnap.data() } as Course);
-        } else {
-          notFound();
+        try {
+          const docRef = doc(db, 'courses', id);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setCourse({ id: docSnap.id, ...docSnap.data() } as Course);
+          } else {
+            notFound();
+          }
+        } catch (error) {
+          console.error("Error fetching course:", error);
+          // Handle error, maybe show a toast or an error message
+        } finally {
+          setLoading(false);
         }
       };
       getCourse();
+    } else {
+      setLoading(false);
     }
   }, [id]);
 
-  if (!course) {
+  if (loading) {
     return <div>Loading...</div>; // Or a spinner
+  }
+
+  if (!course) {
+    return notFound();
   }
   
   const lessonId = searchParams.get('lesson') || course.lessons?.[0]?.id;

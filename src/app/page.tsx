@@ -1,23 +1,47 @@
+
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { CourseCard } from '@/components/courses/CourseCard';
 import Link from 'next/link';
-import { collection, getDocs, limit, query } from "firebase/firestore";
+import { collection, getDocs, limit, query, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course } from '@/lib/types';
 
 async function getFeaturedCourses(): Promise<Course[]> {
-  const q = query(collection(db, "courses"), limit(3));
-  const querySnapshot = await getDocs(q);
-  const courses: Course[] = [];
-  querySnapshot.forEach((doc) => {
-    courses.push({ id: doc.id, ...doc.data() } as Course);
-  });
-  return courses;
+  try {
+    const q = query(collection(db, "courses"), limit(3));
+    const querySnapshot = await getDocs(q);
+    const courses: Course[] = [];
+    querySnapshot.forEach((doc) => {
+      courses.push({ id: doc.id, ...doc.data() } as Course);
+    });
+    return courses;
+  } catch (error) {
+    console.error("Error fetching featured courses:", error);
+    return []; // Return an empty array on error
+  }
+}
+
+async function getHomepageSettings() {
+  try {
+    const docRef = doc(db, "settings", "homepage");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        return docSnap.data();
+    }
+  } catch (error) {
+    console.error("Error fetching homepage settings:", error);
+  }
+  // Return default settings on error or if not found
+  return {
+      heroTitle: "Unlock Your Potential with Safari Academy",
+      heroSubtitle: "Explore a world of knowledge with our expert-led courses. Start your learning journey today and achieve your goals."
+  };
 }
 
 export default async function Home() {
   const featuredCourses = await getFeaturedCourses();
+  const settings = await getHomepageSettings();
 
   return (
     <div className="flex flex-col gap-16 md:gap-24">
@@ -29,10 +53,10 @@ export default async function Home() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-foreground mb-6">
-              Unlock Your Potential with Safari Academy
+              {settings.heroTitle}
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8">
-              Explore a world of knowledge with our expert-led courses. Start your learning journey today and achieve your goals.
+              {settings.heroSubtitle}
             </p>
             <Button size="lg" asChild>
               <Link href="/courses">
@@ -55,6 +79,11 @@ export default async function Home() {
             <CourseCard key={course.id} course={course} />
           ))}
         </div>
+        {featuredCourses.length === 0 && (
+          <div className="text-center text-muted-foreground">
+            <p>Could not load featured courses. Please check back later.</p>
+          </div>
+        )}
         <div className="text-center mt-12">
             <Button variant="outline" asChild>
                 <Link href="/courses">View All Courses</Link>

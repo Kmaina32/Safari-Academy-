@@ -4,12 +4,17 @@ import { db } from "@/lib/firebase";
 import type { Course } from '@/lib/types';
 
 async function getCourses(): Promise<Course[]> {
-  const querySnapshot = await getDocs(collection(db, "courses"));
-  const courses: Course[] = [];
-  querySnapshot.forEach((doc) => {
-    courses.push({ id: doc.id, ...doc.data() } as Course);
-  });
-  return courses;
+  try {
+    const querySnapshot = await getDocs(collection(db, "courses"));
+    const courses: Course[] = [];
+    querySnapshot.forEach((doc) => {
+      courses.push({ id: doc.id, ...doc.data() } as Course);
+    });
+    return courses;
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    return []; // Return an empty array on error
+  }
 }
 
 
@@ -29,6 +34,11 @@ export default async function CoursesPage() {
           <CourseCard key={course.id} course={course} />
         ))}
       </div>
+      {courses.length === 0 && (
+        <div className="text-center text-muted-foreground mt-8">
+          <p>No courses available at the moment. Please check back later.</p>
+        </div>
+      )}
     </div>
   );
 }

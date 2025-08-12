@@ -17,6 +17,7 @@ import type { Course } from '@/lib/types';
 
 
 async function getCourse(id: string): Promise<Course | null> {
+  try {
     const docRef = doc(db, "courses", id);
     const docSnap = await getDoc(docRef);
 
@@ -25,6 +26,10 @@ async function getCourse(id: string): Promise<Course | null> {
     } else {
         return null;
     }
+  } catch (error) {
+    console.error("Error fetching course:", error);
+    return null; // Return null on error
+  }
 }
 
 
