@@ -179,14 +179,16 @@ export function Header() {
                 </DropdownMenu>
               </>
             ) : (
-                <div className="space-x-2">
-                    <Button variant="ghost" asChild>
-                        <Link href="/login">Login</Link>
-                    </Button>
-                     <Button asChild>
-                        <Link href="/signup">Sign Up</Link>
-                    </Button>
-                </div>
+                !isAdminPage && (
+                    <div className="space-x-2">
+                        <Button variant="ghost" asChild>
+                            <Link href="/login">Login</Link>
+                        </Button>
+                        <Button asChild>
+                            <Link href="/signup">Sign Up</Link>
+                        </Button>
+                    </div>
+                )
             )
           )}
         </div>
