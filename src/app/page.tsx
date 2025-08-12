@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { collection, getDocs, limit, query, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course } from '@/lib/types';
+import Image from 'next/image';
 
 async function getFeaturedCourses(): Promise<Course[]> {
   try {
@@ -35,7 +36,8 @@ async function getHomepageSettings() {
   // Return default settings on error or if not found
   return {
       heroTitle: "Unlock Your Potential with Safari Academy",
-      heroSubtitle: "Explore a world of knowledge with our expert-led courses. Start your learning journey today and achieve your goals."
+      heroSubtitle: "Explore a world of knowledge with our expert-led courses. Start your learning journey today and achieve your goals.",
+      heroImageUrl: "https://placehold.co/1200x600",
   };
 }
 
@@ -46,16 +48,23 @@ export default async function Home() {
   return (
     <div className="flex flex-col gap-16 md:gap-24">
       <section className="relative pt-16 md:pt-24 pb-16 md:pb-24">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 top-0 h-full w-full bg-background [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
-        />
-        <div className="container mx-auto px-4">
+         <div className="absolute inset-0 z-0">
+             <Image 
+                src={settings.heroImageUrl}
+                alt="Hero background"
+                fill
+                className="object-cover"
+                data-ai-hint="inspiring learning environment"
+            />
+            <div className="absolute inset-0 bg-black/50" />
+         </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-foreground mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight text-white mb-6">
               {settings.heroTitle}
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8">
+            <p className="text-lg md:text-xl text-slate-200 mb-8">
               {settings.heroSubtitle}
             </p>
             <Button size="lg" asChild>
@@ -81,7 +90,7 @@ export default async function Home() {
         </div>
         {featuredCourses.length === 0 && (
           <div className="text-center text-muted-foreground">
-            <p>Could not load featured courses. Please check back later.</p>
+            <p>No featured courses found. Add some in the admin panel!</p>
           </div>
         )}
         <div className="text-center mt-12">

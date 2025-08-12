@@ -7,20 +7,25 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from '@/components/ui/textarea';
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, addDoc, collection } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
+import { sampleCourses } from '@/lib/data';
 
 interface HomePageSettings {
     heroTitle: string;
     heroSubtitle: string;
+    heroImageUrl: string;
+    authBackgroundImageUrl: string;
 }
 
 export default function AdminSettingsPage() {
     const [settings, setSettings] = useState<HomePageSettings>({
         heroTitle: '',
         heroSubtitle: '',
+        heroImageUrl: '',
+        authBackgroundImageUrl: '',
     });
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
@@ -38,6 +43,8 @@ export default function AdminSettingsPage() {
                     setSettings({
                         heroTitle: "Unlock Your Potential with Safari Academy",
                         heroSubtitle: "Explore a world of knowledge with our expert-led courses...",
+                        heroImageUrl: "https://placehold.co/1200x600",
+                        authBackgroundImageUrl: "https://placehold.co/1920x1080",
                     });
                 }
             } catch (error) {
@@ -71,6 +78,25 @@ export default function AdminSettingsPage() {
             });
         }
     };
+    
+    const handleSeedDatabase = async () => {
+        try {
+            const promises = sampleCourses.map(course => addDoc(collection(db, "courses"), course));
+            await Promise.all(promises);
+            toast({
+                title: "Database Seeded!",
+                description: "Sample courses have been added to your database.",
+            });
+        } catch (error) {
+             console.error("Error seeding database: ", error);
+             toast({
+                title: "Error",
+                description: "There was an error seeding the database.",
+                variant: "destructive",
+            });
+        }
+    }
+
 
     if (loading) {
         return <div>Loading settings...</div>;
@@ -105,11 +131,45 @@ export default function AdminSettingsPage() {
                     rows={3}
                 />
             </div>
+             <div className="space-y-2">
+                <Label htmlFor="hero-image-url">Hero Image URL</Label>
+                <Input 
+                    id="hero-image-url" 
+                    value={settings.heroImageUrl}
+                    onChange={(e) => setSettings({...settings, heroImageUrl: e.target.value})}
+                    placeholder="https://example.com/hero-image.jpg"
+                />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="auth-bg-url">Auth Pages Background URL</Label>
+                <Input 
+                    id="auth-bg-url" 
+                    value={settings.authBackgroundImageUrl}
+                    onChange={(e) => setSettings({...settings, authBackgroundImageUrl: e.target.value})}
+                    placeholder="https://example.com/auth-background.jpg"
+                />
+            </div>
         </CardContent>
          <CardFooter className="border-t px-6 py-4">
             <Button onClick={handleSave}>Save Homepage Settings</Button>
         </CardFooter>
       </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Database Management</CardTitle>
+                <CardDescription>Actions for managing your database content.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <div className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="space-y-0.5">
+                        <Label>Seed Database</Label>
+                        <p className="text-xs text-muted-foreground">Add sample courses to your database. This is useful for development and testing.</p>
+                    </div>
+                   <Button variant="secondary" onClick={handleSeedDatabase}>Seed Courses</Button>
+                </div>
+            </CardContent>
+        </Card>
 
       <Card>
         <CardHeader>
