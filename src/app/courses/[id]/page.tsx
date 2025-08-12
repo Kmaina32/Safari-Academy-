@@ -24,6 +24,7 @@ async function getCourse(id: string): Promise<Course | null> {
     if (docSnap.exists()) {
         return { id: docSnap.id, ...docSnap.data() } as Course;
     } else {
+        console.log("No such document!");
         return null;
     }
   } catch (error) {
