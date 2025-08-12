@@ -1,3 +1,4 @@
+
 export type Course = {
   id?: string;
   title: string;
@@ -39,4 +40,26 @@ export type EnrolledCourse = {
     progress: number; // percentage
     completedLessons: number;
     totalLessons: number;
+}
+
+export type Question = {
+    text: string;
+    options: string[];
+    correctAnswer: number; // index of the correct option
+}
+
+export type Quiz = {
+    id?: string;
+    title: string;
+    courseId: string;
+    questions: Question[];
+}
+
+export type QuizSubmission = {
+    id?: string;
+    quizId: string;
+    userId: string;
+    answers: number[]; // array of selected option indices
+    score: number; // percentage
+    submittedAt: Date;
 }

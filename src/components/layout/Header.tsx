@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -11,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AlignJustify, Bell, Home, LogOut, Settings, User, Shield, LayoutDashboard } from 'lucide-react';
+import { AlignJustify, Bell, Home, LogOut, Settings, User, Shield, LayoutDashboard, FileText } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -38,6 +39,7 @@ const adminNavLinks = [
     { href: '/admin/users', label: 'Users'},
     { href: '/admin/analytics', label: 'Analytics'},
     { href: '/admin/discussions', label: 'Discussions'},
+    { href: '/admin/quizzes', label: 'Quizzes'},
     { href: '/admin/settings', label: 'Settings'},
 ]
 
@@ -156,6 +158,12 @@ export function Header() {
                       <Link href="/dashboard">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         <span>Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/quizzes">
+                        <FileText className="mr-2 h-4 w-4" />
+                        <span>My Quizzes</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
