@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.prod.website-files.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lirp.cdn-website.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
