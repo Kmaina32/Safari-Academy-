@@ -9,6 +9,7 @@ import type { Course, EnrolledCourse as EnrolledCourseType } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
 
 async function getDemoCourses(): Promise<(Course & Partial<EnrolledCourseType>)[]> {
     try {
@@ -53,22 +54,30 @@ function DashboardSkeleton() {
 }
 
 export default function DashboardPage() {
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
+    const router = useRouter();
     const [userEnrolledCourses, setUserEnrolledCourses] = React.useState<(Course & Partial<EnrolledCourseType>)[]>([]);
-    const [loading, setLoading] = React.useState(true);
+    const [coursesLoading, setCoursesLoading] = React.useState(true);
 
     React.useEffect(() => {
-        async function fetchCourses() {
-            // Here you would fetch actual user enrollments.
-            // For now, we'll just show a few demo courses.
-            const courses = await getDemoCourses();
-            setUserEnrolledCourses(courses);
-            setLoading(false);
+        if (!loading && !user) {
+            router.push('/login');
+            return;
         }
-        fetchCourses();
-    }, []);
 
-    if (loading) {
+        if (user) {
+            async function fetchCourses() {
+                // Here you would fetch actual user enrollments.
+                // For now, we'll just show a few demo courses.
+                const courses = await getDemoCourses();
+                setUserEnrolledCourses(courses);
+                setCoursesLoading(false);
+            }
+            fetchCourses();
+        }
+    }, [user, loading, router]);
+
+    if (loading || (!user && !loading)) {
         return <DashboardSkeleton />;
     }
 
@@ -80,7 +89,13 @@ export default function DashboardPage() {
       <div className="space-y-8">
         <div>
             <h2 className="text-2xl font-bold font-headline mb-4">My Courses</h2>
-            {userEnrolledCourses.length > 0 ? (
+            {coursesLoading ? (
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <EnrolledCourseCardSkeleton />
+                    <EnrolledCourseCardSkeleton />
+                    <EnrolledCourseCardSkeleton />
+                </div>
+            ) : userEnrolledCourses.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {userEnrolledCourses.map((course) => (
                         <EnrolledCourseCard key={course.id} course={course as Course & EnrolledCourseType} />

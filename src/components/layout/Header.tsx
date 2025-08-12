@@ -28,7 +28,11 @@ import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 
 
-const mainNavLinks = [
+const loggedOutNavLinks = [
+  { href: '/courses', label: 'Courses' },
+];
+
+const loggedInNavLinks = [
   { href: '/courses', label: 'Courses' },
   { href: '/dashboard', label: 'Dashboard' },
 ];
@@ -49,7 +53,16 @@ export function Header() {
   const { user, loading, logout } = useAuth();
 
   const isAdminPage = pathname.startsWith('/admin');
-  const navLinks = isAdminPage ? adminNavLinks : mainNavLinks;
+  
+  let navLinks;
+  if (isAdminPage) {
+    navLinks = adminNavLinks;
+  } else if (user) {
+    navLinks = loggedInNavLinks;
+  } else {
+    navLinks = loggedOutNavLinks;
+  }
+
 
   const handleLogout = async () => {
     await logout();
