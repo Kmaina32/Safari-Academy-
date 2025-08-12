@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
+import type { User } from '@/lib/types';
 
 function ProfileSkeleton() {
     return (
@@ -51,14 +52,34 @@ export default function ProfilePage() {
     const { toast } = useToast();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [pageLoading, setPageLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (!authLoading && !user) {
             router.push('/login');
-        } else if (user) {
-            setName(user.displayName || '');
-            setEmail(user.email || '');
+            return;
+        }
+
+        if (user) {
+            const fetchUserData = async () => {
+                setPageLoading(true);
+                const userDocRef = doc(db, 'users', user.uid);
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists()) {
+                    const userData = docSnap.data() as User;
+                    setName(userData.name || user.displayName || '');
+                    setEmail(userData.email || user.email || '');
+                    setPhone(userData.phone || '');
+                } else {
+                    // If doc doesn't exist, use auth data and prepare to create doc on save
+                    setName(user.displayName || '');
+                    setEmail(user.email || '');
+                }
+                setPageLoading(false);
+            };
+            fetchUserData();
         }
     }, [user, authLoading, router]);
 
@@ -67,13 +88,13 @@ export default function ProfilePage() {
         setIsSaving(true);
         try {
             // Update Firebase Auth profile
-            if (auth.currentUser) {
+            if (auth.currentUser && auth.currentUser.displayName !== name) {
                 await updateProfile(auth.currentUser, { displayName: name });
             }
 
-            // Update Firestore user document
+            // Update or create Firestore user document
             const userDocRef = doc(db, 'users', user.uid);
-            await updateDoc(userDocRef, { name });
+            await setDoc(userDocRef, { name, email, phone }, { merge: true });
 
             toast({
                 title: 'Profile Updated',
@@ -91,7 +112,7 @@ export default function ProfilePage() {
         }
     };
     
-    if (authLoading || !user) {
+    if (authLoading || pageLoading || !user) {
         return (
              <div>
                 <h1 className="text-3xl font-bold font-headline mb-6">Profile</h1>
@@ -111,17 +132,21 @@ export default function ProfilePage() {
                 <CardContent className="space-y-4">
                     <div className="flex items-center gap-4">
                         <Avatar className="h-20 w-20">
-                            <AvatarImage src={user.photoURL || `https://placehold.co/100x100?text=${name.charAt(0)}`} alt={name} />
+                            <AvatarImage src={user.photoURL || `https://placehold.co/100x100`} data-ai-hint="user avatar" alt={name} />
                             <AvatarFallback>{name.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <Button variant="outline">Change Avatar</Button>
+                        <Button variant="outline" disabled>Change Avatar (soon)</Button>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="name">Full Name</Label>
                             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
                         </div>
-                        <div className="space-y-2">
+                         <div className="space-y-2">
+                            <Label htmlFor="phone">Phone Number</Label>
+                            <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
                             <Label htmlFor="email">Email Address</Label>
                             <Input id="email" value={email} type="email" disabled />
                         </div>
@@ -131,29 +156,6 @@ export default function ProfilePage() {
                     <Button onClick={handleUpdateProfile} disabled={isSaving}>
                         {isSaving ? 'Saving...' : 'Update Profile'}
                     </Button>
-                </CardFooter>
-            </Card>
-             <Card className="mt-6">
-                <CardHeader>
-                    <CardTitle>Change Password</CardTitle>
-                    <CardDescription>For your security, we recommend using a strong password.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="current-password">Current Password</Label>
-                        <Input id="current-password" type="password" />
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="new-password">New Password</Label>
-                        <Input id="new-password" type="password" />
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="confirm-password">Confirm New Password</Label>
-                        <Input id="confirm-password" type="password" />
-                    </div>
-                </CardContent>
-                <CardFooter className="border-t px-6 py-4">
-                    <Button>Change Password</Button>
                 </CardFooter>
             </Card>
         </div>
