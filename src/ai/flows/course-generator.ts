@@ -19,7 +19,7 @@ export type CourseGeneratorInput = z.infer<typeof CourseGeneratorInputSchema>;
 const LessonSchema = z.object({
     title: z.string().describe("The title of the lesson."),
     duration: z.string().describe("The estimated duration of the lesson (e.g., '15 min')."),
-    content: z.string().describe("A detailed summary or script for the lesson content."),
+    content: z.string().describe("A detailed, paragraph-long summary or script for the lesson content."),
     videoUrl: z.string().optional().describe("An optional URL for a relevant YouTube video."),
 });
 
@@ -49,11 +49,13 @@ const prompt = ai.definePrompt({
   output: {schema: CourseGeneratorOutputSchema},
   prompt: `You are an expert curriculum designer for an online learning platform called "Safari Academy". Your task is to generate a comprehensive and engaging course structure based on a given topic.
 
-The course should be well-structured, with logical modules and lessons. The content should be practical and informative.
+The course must be thorough and in-depth. It should contain at least 5 distinct modules. Each module must contain multiple, logically-sequenced lessons.
+
+For each lesson, provide a detailed, paragraph-long content summary that could serve as a script or detailed outline.
 
 Create a course about: {{{topic}}}
 
-Please generate all the required fields, including a full set of modules and lessons. Ensure the lesson content is detailed enough to be useful.
+Please generate all the required fields, including a full set of modules and lessons.
 `,
 });
 
