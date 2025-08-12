@@ -6,10 +6,7 @@ import Link from "next/link";
 export default function LoginPage() {
   return (
     <div 
-      className="flex h-screen w-screen items-center justify-center bg-cover bg-center"
-      style={{
-        backgroundImage: "url('https://cdn.prod.website-files.com/65cb6a13e28e17a9782545c2/6628a14fd0bbecd12de2b04b_gfsb-p-1080.jpg')"
-      }}
+      className="flex h-screen w-screen items-center justify-center bg-background"
     >
       <Card className="w-full max-w-sm">
         <CardHeader>
