@@ -94,3 +94,8 @@ export type Certificate = {
         nanoseconds: number;
     };
 }
+
+export type CertificateSettings = {
+    signatureUrl: string;
+    sealUrl: string;
+}

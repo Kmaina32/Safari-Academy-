@@ -11,6 +11,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import type { CertificateSettings } from '@/lib/types';
 
 
 interface HomePageSettings {
@@ -27,7 +28,13 @@ export default function AdminSettingsPage() {
         heroImageUrl: '',
         authBackgroundImageUrl: '',
     });
+    const [certificateSettings, setCertificateSettings] = useState<CertificateSettings>({
+        signatureUrl: '',
+        sealUrl: '',
+    });
     const [loading, setLoading] = useState(true);
+    const [savingHomepage, setSavingHomepage] = useState(false);
+    const [savingCerts, setSavingCerts] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -38,6 +45,12 @@ export default function AdminSettingsPage() {
                 const homepageDocSnap = await getDoc(homepageDocRef);
                 if (homepageDocSnap.exists()) {
                     setHomepageSettings(homepageDocSnap.data() as HomePageSettings);
+                }
+
+                const certDocRef = doc(db, "settings", "certificate");
+                const certDocSnap = await getDoc(certDocRef);
+                if (certDocSnap.exists()) {
+                    setCertificateSettings(certDocSnap.data() as CertificateSettings);
                 }
 
             } catch (error) {
@@ -55,6 +68,7 @@ export default function AdminSettingsPage() {
     }, [toast]);
 
     const handleSaveHomepage = async () => {
+        setSavingHomepage(true);
         try {
             const docRef = doc(db, "settings", "homepage");
             await setDoc(docRef, homepageSettings, { merge: true });
@@ -69,6 +83,29 @@ export default function AdminSettingsPage() {
                 description: "There was an error saving your homepage settings.",
                 variant: "destructive",
             });
+        } finally {
+            setSavingHomepage(false);
+        }
+    };
+    
+    const handleSaveCerts = async () => {
+        setSavingCerts(true);
+        try {
+            const docRef = doc(db, "settings", "certificate");
+            await setDoc(docRef, certificateSettings, { merge: true });
+            toast({
+                title: "Certificate Settings Saved!",
+                description: "Your certificate settings have been updated.",
+            });
+        } catch (error) {
+            console.error("Error saving settings: ", error);
+            toast({
+                title: "Error",
+                description: "There was an error saving your certificate settings.",
+                variant: "destructive",
+            });
+        } finally {
+            setSavingCerts(false);
         }
     };
 
@@ -125,7 +162,45 @@ export default function AdminSettingsPage() {
             </div>
         </CardContent>
          <CardFooter className="border-t px-6 py-4">
-            <Button onClick={handleSaveHomepage}>Save Homepage Settings</Button>
+            <Button onClick={handleSaveHomepage} disabled={savingHomepage}>
+                {savingHomepage && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Homepage Settings
+            </Button>
+        </CardFooter>
+      </Card>
+
+       <Card>
+        <CardHeader>
+            <CardTitle>Certificate Settings</CardTitle>
+            <CardDescription>Manage the signature and seal displayed on generated certificates.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="signature-url">Signature Image URL</Label>
+                <Input 
+                    id="signature-url" 
+                    value={certificateSettings.signatureUrl}
+                    onChange={(e) => setCertificateSettings({...certificateSettings, signatureUrl: e.target.value})}
+                    placeholder="https://example.com/signature.png" 
+                />
+                 <p className="text-xs text-muted-foreground">Recommended: A PNG with a transparent background.</p>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="seal-url">Seal/Logo Image URL</Label>
+                <Input 
+                    id="seal-url" 
+                    value={certificateSettings.sealUrl}
+                    onChange={(e) => setCertificateSettings({...certificateSettings, sealUrl: e.target.value})}
+                    placeholder="https://example.com/seal.png" 
+                />
+                 <p className="text-xs text-muted-foreground">Recommended: A circular PNG with a transparent background.</p>
+            </div>
+        </CardContent>
+         <CardFooter className="border-t px-6 py-4">
+            <Button onClick={handleSaveCerts} disabled={savingCerts}>
+                 {savingCerts && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Certificate Settings
+            </Button>
         </CardFooter>
       </Card>
     </div>
