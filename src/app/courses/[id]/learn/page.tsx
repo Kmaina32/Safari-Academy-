@@ -1,6 +1,7 @@
+
 'use client';
 import React from 'react';
-import { notFound, useSearchParams } from 'next/navigation';
+import { notFound, useSearchParams, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Accordion,
@@ -16,8 +17,9 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Course } from '@/lib/types';
 
-export default function CourseLearnPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function CourseLearnPage() {
+  const params = useParams();
+  const id = params.id as string;
   const searchParams = useSearchParams();
   const [course, setCourse] = React.useState<Course | null>(null);
   const [loading, setLoading] = React.useState(true);

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,8 +19,9 @@ import { db } from "@/lib/firebase";
 import type { Course } from '@/lib/types';
 
 
-export default function CourseDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function CourseDetailPage() {
+  const params = useParams();
+  const id = params.id as string;
   const [course, setCourse] = React.useState<Course | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -43,7 +44,9 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
             setLoading(false);
         }
     }
-    getCourse(id);
+    if (id) {
+        getCourse(id);
+    }
   }, [id]);
 
   if (loading) {
