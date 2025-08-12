@@ -1,38 +1,37 @@
 import { EnrolledCourseCard } from "@/components/dashboard/EnrolledCourseCard";
 import { user } from "@/lib/data";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course, EnrolledCourse as EnrolledCourseType } from '@/lib/types';
 
 // This is a placeholder for fetching user-specific enrollments
 async function getUserEnrolledCourses(userId: string): Promise<(Course & EnrolledCourseType)[]> {
-    // In a real app, you'd fetch enrollment data for the user
-    // For now, we'll use the mock enrollment data and fetch full course details
-    const enrolledCourses: EnrolledCourseType[] = [
-        // This would be fetched from a 'enrollments' collection for the user
-    ]
+    // In a real app, you'd fetch enrollment data for the user from an 'enrollments' collection
+    // and then fetch the details for those courses.
+    const enrolledCourses: EnrolledCourseType[] = []; // This would be dynamic based on the logged-in user
     const courseIds = enrolledCourses.map(e => e.courseId);
-    
+
+    // If the user has no enrolled courses, show the first 2 courses from the database as a demo
     if (courseIds.length === 0) {
-        // To make the dashboard look populated, let's just grab the first two courses for now.
-        // In a real app, this block would return an empty array.
-        const allCoursesQuery = query(collection(db, "courses"), where("__name__", "!=", ""));
-        const allCoursesSnapshot = await getDocs(allCoursesQuery);
-        const allCourses: Course[] = [];
-        allCoursesSnapshot.forEach(doc => {
-            allCourses.push({ id: doc.id, ...doc.data()} as Course);
+        const coursesQuery = query(collection(db, "courses"), limit(2));
+        const querySnapshot = await getDocs(coursesQuery);
+        const courses: Course[] = [];
+        querySnapshot.forEach(doc => {
+            courses.push({ id: doc.id, ...doc.data() } as Course);
         });
 
-        // Create fake enrollment data
-        return allCourses.slice(0, 2).map(course => ({
+        // Create fake enrollment data for the demo courses
+        return courses.map(course => ({
             ...course,
             courseId: course.id!,
             progress: Math.floor(Math.random() * 100),
             completedLessons: Math.floor(Math.random() * (course.lessons?.length || 0)),
-            totalLessons: course.lessons?.length || 0,
+            totalLessons: course.lessons?.length || 10,
         }));
     }
 
+    // This part of the code would run if the user was actually enrolled in courses.
+    // It is correct but currently unreachable until a real enrollment system is built.
     const coursesRef = collection(db, "courses");
     const q = query(coursesRef, where("__name__", "in", courseIds));
     
