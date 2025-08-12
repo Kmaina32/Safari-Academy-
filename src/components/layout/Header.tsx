@@ -35,6 +35,7 @@ const loggedOutNavLinks = [
 const loggedInNavLinks = [
   { href: '/courses', label: 'Courses' },
   { href: '/dashboard', label: 'Dashboard' },
+  { href: '/dashboard/quizzes', label: 'Assignments' },
 ];
 
 const adminNavLinks = [
@@ -174,12 +175,6 @@ export function Header() {
                       <Link href="/dashboard">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         <span>Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/quizzes">
-                        <FileText className="mr-2 h-4 w-4" />
-                        <span>My Quizzes</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
