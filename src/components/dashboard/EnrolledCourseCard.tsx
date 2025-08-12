@@ -26,7 +26,7 @@ export function EnrolledCourseCard({ course }: EnrolledCourseCardProps) {
         </div>
         <div className="p-4 pb-2">
           <CardTitle className="text-base font-bold font-headline leading-tight">
-            <Link href={`/courses/${course.id}`} className="hover:text-primary transition-colors">{course.title}</Link>
+            <Link href={`/courses/${course.id}/learn`} className="hover:text-primary transition-colors">{course.title}</Link>
           </CardTitle>
           <p className="text-xs text-muted-foreground mt-1">by {course.instructor}</p>
         </div>
@@ -39,7 +39,7 @@ export function EnrolledCourseCard({ course }: EnrolledCourseCardProps) {
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button asChild className="w-full" variant="outline" size="sm">
-            <Link href={`/courses/${course.id}`}>
+            <Link href={`/courses/${course.id}/learn`}>
                 <PlayCircle className="mr-2 h-4 w-4"/>
                 Continue Learning
             </Link>

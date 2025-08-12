@@ -20,9 +20,25 @@ export const courses: Course[] = [
     rating: 4.8,
     enrolledStudents: 1204,
     lessons: [
-      { id: 'l1', title: 'HTML Basics', duration: '45 mins', content: '...' },
-      { id: 'l2', title: 'CSS Fundamentals', duration: '1 hr 15 mins', content: '...' },
+      { id: 'l1-1', title: 'HTML Basics', duration: '45 mins', content: 'In this lesson, we will cover the foundational tags and structure of an HTML document.' },
+      { id: 'l1-2', title: 'CSS Fundamentals', duration: '1 hr 15 mins', content: 'Learn how to style your web pages with CSS, including selectors, properties, and the box model.' },
+      { id: 'l1-3', title: 'Introduction to JavaScript', duration: '1 hr 30 mins', content: 'Get started with JavaScript, the programming language of the web. We will cover variables, data types, and functions.' },
     ],
+    modules: [
+        { 
+            title: 'Module 1: Getting Started', 
+            lessons: [
+                { id: 'l1-1', title: 'HTML Basics', duration: '45 mins', content: 'In this lesson, we will cover the foundational tags and structure of an HTML document.' },
+                { id: 'l1-2', title: 'CSS Fundamentals', duration: '1 hr 15 mins', content: 'Learn how to style your web pages with CSS, including selectors, properties, and the box model.' },
+            ]
+        },
+        {
+            title: 'Module 2: JavaScript Essentials',
+            lessons: [
+                 { id: 'l1-3', title: 'Introduction to JavaScript', duration: '1 hr 30 mins', content: 'Get started with JavaScript, the programming language of the web. We will cover variables, data types, and functions.' },
+            ]
+        }
+    ]
   },
   {
     id: 'course-2',
@@ -36,9 +52,23 @@ export const courses: Course[] = [
     rating: 4.9,
     enrolledStudents: 852,
     lessons: [
-       { id: 'l1', title: 'Advanced Vector Art', duration: '2 hrs', content: '...' },
-       { id: 'l2', title: 'Photo Manipulation', duration: '1 hr 45 mins', content: '...' },
+       { id: 'l2-1', title: 'Advanced Vector Art', duration: '2 hrs', content: 'Explore complex vector illustration techniques in Adobe Illustrator.' },
+       { id: 'l2-2', title: 'Photo Manipulation', duration: '1 hr 45 mins', content: 'Master the art of photo manipulation and compositing in Adobe Photoshop.' },
     ],
+    modules: [
+        {
+            title: 'Module 1: Vector Mastery',
+            lessons: [
+                { id: 'l2-1', title: 'Advanced Vector Art', duration: '2 hrs', content: 'Explore complex vector illustration techniques in Adobe Illustrator.' },
+            ]
+        },
+        {
+            title: 'Module 2: Photoshop Wizardry',
+            lessons: [
+                 { id: 'l2-2', title: 'Photo Manipulation', duration: '1 hr 45 mins', content: 'Master the art of photo manipulation and compositing in Adobe Photoshop.' },
+            ]
+        }
+    ]
   },
   {
     id: 'course-3',
@@ -52,25 +82,43 @@ export const courses: Course[] = [
     rating: 4.7,
     enrolledStudents: 2341,
     lessons: [
-        { id: 'l1', title: 'Understanding SEO', duration: '1 hr', content: '...' },
-        { id: 'l2', title: 'Social Media Strategy', duration: '1 hr 30 mins', content: '...' },
+        { id: 'l3-1', title: 'Understanding SEO', duration: '1 hr', content: 'A deep dive into search engine optimization principles and practices.' },
+        { id: 'l3-2', title: 'Social Media Strategy', duration: '1 hr 30 mins', content: 'Learn to build and execute a successful social media marketing plan.' },
     ],
+     modules: [
+        {
+            title: 'Module 1: Core Concepts',
+            lessons: [
+                { id: 'l3-1', title: 'Understanding SEO', duration: '1 hr', content: 'A deep dive into search engine optimization principles and practices.' },
+                { id: 'l3-2', title: 'Social Media Strategy', duration: '1 hr 30 mins', content: 'Learn to build and execute a successful social media marketing plan.' },
+            ]
+        }
+    ]
   },
    {
     id: 'course-4',
     title: 'The Art of Public Speaking',
     description: 'Build confidence and deliver powerful presentations.',
     longDescription: 'Conquer your fear of public speaking and learn to command a room. This course provides practical techniques for structuring a speech, using body language effectively, and engaging your audience.',
-    instructor: 'Susan orator',
+    instructor: 'Susan Orator',
     imageUrl: 'https://placehold.co/600x400',
     category: 'Personal Development',
     duration: '4 weeks',
     rating: 4.8,
     enrolledStudents: 950,
     lessons: [
-        { id: 'l1', title: 'Crafting Your Message', duration: '45 mins', content: '...' },
-        { id: 'l2', title: 'Delivery Techniques', duration: '1 hr', content: '...' },
+        { id: 'l4-1', title: 'Crafting Your Message', duration: '45 mins', content: 'Learn how to structure a compelling narrative for your speech.' },
+        { id: 'l4-2', title: 'Delivery Techniques', duration: '1 hr', content: 'Practice vocal variety, pacing, and body language to engage your audience.' },
     ],
+    modules: [
+        {
+            title: 'Module 1: The Foundation',
+            lessons: [
+                { id: 'l4-1', title: 'Crafting Your Message', duration: '45 mins', content: 'Learn how to structure a compelling narrative for your speech.' },
+                { id: 'l4-2', title: 'Delivery Techniques', duration: '1 hr', content: 'Practice vocal variety, pacing, and body language to engage your audience.' },
+            ]
+        }
+    ]
   },
 ];
 
@@ -78,8 +126,8 @@ export const enrolledCourses: EnrolledCourse[] = [
     {
         courseId: 'course-1',
         progress: 75,
-        completedLessons: 1,
-        totalLessons: 2,
+        completedLessons: 2,
+        totalLessons: 3,
     },
     {
         courseId: 'course-3',

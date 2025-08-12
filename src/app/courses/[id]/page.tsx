@@ -10,6 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import Link from 'next/link';
 
 export default function CourseDetailPage({ params }: { params: { id: string } }) {
   const course = courses.find((c) => c.id === params.id);
@@ -46,7 +47,9 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
                     <span className="text-primary">$49.99</span>
                     <span className="text-base font-normal text-muted-foreground line-through">$99.99</span>
                 </div>
-                <Button size="lg" className="w-full mb-4">Enroll Now</Button>
+                <Button size="lg" className="w-full mb-4" asChild>
+                  <Link href={`/courses/${course.id}/learn`}>Enroll Now</Link>
+                </Button>
                 <div className="space-y-3 text-sm">
                     <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-muted-foreground"/>
@@ -65,23 +68,25 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
             
             <div className="mt-8 border rounded-lg bg-card text-card-foreground shadow-lg">
                 <h3 className="text-lg font-bold font-headline p-4 border-b">Course Content</h3>
-                <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="item-1">
-                        <AccordionTrigger className="px-4">Module 1: Getting Started</AccordionTrigger>
-                        <AccordionContent>
-                           <ul className="px-4 py-2 space-y-2">
-                                {course.lessons.map((lesson, index) => (
-                                    <li key={lesson.id} className="flex items-center justify-between text-sm">
-                                        <div className="flex items-center gap-2">
-                                            {index === 0 ? <PlayCircle className="w-4 h-4 text-primary" /> : <Lock className="w-4 h-4 text-muted-foreground"/>}
-                                            <span>{lesson.title}</span>
-                                        </div>
-                                        <span className="text-muted-foreground">{lesson.duration}</span>
-                                    </li>
-                                ))}
-                           </ul>
-                        </AccordionContent>
-                    </AccordionItem>
+                <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
+                    {course.modules.map((module, moduleIndex) => (
+                      <AccordionItem value={`item-${moduleIndex}`} key={module.title}>
+                          <AccordionTrigger className="px-4 text-left">{module.title}</AccordionTrigger>
+                          <AccordionContent>
+                            <ul className="px-4 py-2 space-y-2">
+                                  {module.lessons.map((lesson, lessonIndex) => (
+                                      <li key={lesson.id} className="flex items-center justify-between text-sm">
+                                          <div className="flex items-center gap-2">
+                                              {moduleIndex === 0 && lessonIndex === 0 ? <PlayCircle className="w-4 h-4 text-primary" /> : <Lock className="w-4 h-4 text-muted-foreground"/>}
+                                              <span>{lesson.title}</span>
+                                          </div>
+                                          <span className="text-muted-foreground">{lesson.duration}</span>
+                                      </li>
+                                  ))}
+                            </ul>
+                          </AccordionContent>
+                      </AccordionItem>
+                    ))}
                 </Accordion>
             </div>
           </div>

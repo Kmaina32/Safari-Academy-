@@ -10,6 +10,7 @@ export type Course = {
   lessons: Lesson[];
   rating: number;
   enrolledStudents: number;
+  modules: Module[];
 };
 
 export type Lesson = {
