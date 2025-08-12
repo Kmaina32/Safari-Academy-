@@ -6,12 +6,12 @@ import Link from "next/link";
 export default function SignupPage() {
   return (
     <div 
-        className="flex h-screen w-screen items-center justify-center bg-cover bg-center"
+        className="flex h-screen w-screen items-center justify-center bg-cover bg-center py-8"
         style={{
             backgroundImage: "url('https://cdn.prod.website-files.com/65cb6a13e28e17a9782545c2/6628a14fd0bbecd12de2b04b_gfsb-p-1080.jpg')"
         }}
     >
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-md">
         <CardHeader>
             <div className="flex flex-col space-y-2 text-center">
                 <Logo />
@@ -26,14 +26,7 @@ export default function SignupPage() {
         <CardContent>
             <SignupForm />
             <p className="mt-4 px-8 text-center text-sm text-muted-foreground">
-            By clicking continue, you agree to our{" "}
-            <Link
-                href="/terms"
-                className="underline underline-offset-4 hover:text-primary"
-            >
-                Terms of Service
-            </Link>{" "}
-            and{" "}
+            By signing up, you agree to our{" "}
             <Link
                 href="/privacy"
                 className="underline underline-offset-4 hover:text-primary"
