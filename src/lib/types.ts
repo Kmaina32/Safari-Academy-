@@ -40,6 +40,10 @@ export type User = {
   phone: string;
   avatarUrl: string;
   role: 'Admin' | 'Student';
+  createdAt: {
+    seconds: number;
+    nanoseconds: number;
+  } | Date;
 };
 
 export type EnrolledCourse = {

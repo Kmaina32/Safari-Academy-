@@ -1,35 +1,123 @@
 
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, BookOpen, DollarSign, BarChart, Activity, MessageSquare } from "lucide-react";
+import { Users, BookOpen, DollarSign, BarChart, Activity, MessageSquare, UserPlus, FileText } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { formatDistanceToNow } from 'date-fns';
 
-const recentActivity = [
-    { user: 'Jane Smith', activity: 'Enrolled in Advanced Graphic Design', time: '2h ago' },
-    { user: 'Alex Doe', activity: 'Completed Intro to Web Development', time: '5h ago' },
-    { user: 'Admin User', activity: 'Published a new course: The Art of Public Speaking', time: '1d ago' },
-];
+interface ActivityItem {
+    id: string;
+    type: 'new_user' | 'new_discussion';
+    timestamp: Date;
+    data: any;
+}
 
 export default function AdminDashboardPage() {
     const [userCount, setUserCount] = useState(0);
     const [courseCount, setCourseCount] = useState(0);
+    const [totalRevenue, setTotalRevenue] = useState(0);
+    const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
+    const [loadingActivity, setLoadingActivity] = useState(true);
 
     useEffect(() => {
+        // Listen for user count
         const usersUnsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
             setUserCount(snapshot.size);
         });
+
+        // Listen for course count and calculate revenue
         const coursesUnsubscribe = onSnapshot(collection(db, "courses"), (snapshot) => {
+            let revenue = 0;
+            snapshot.forEach(doc => {
+                revenue += doc.data().price || 0;
+            });
             setCourseCount(snapshot.size);
+            setTotalRevenue(revenue);
         });
+
+        // Fetch recent users
+        const recentUsersQuery = query(collection(db, "users"), orderBy("createdAt", "desc"), limit(3));
+        const usersActivityUnsubscribe = onSnapshot(recentUsersQuery, (snapshot) => {
+            const userActivities = snapshot.docs.map(doc => ({
+                id: doc.id,
+                type: 'new_user' as const,
+                timestamp: (doc.data().createdAt as any).toDate(),
+                data: doc.data()
+            }));
+            setRecentActivity(prev => {
+                const otherActivities = prev.filter(item => item.type !== 'new_user');
+                const combined = [...userActivities, ...otherActivities];
+                return combined.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+            });
+            setLoadingActivity(false);
+        });
+
+        // Fetch recent discussions
+        const recentDiscussionsQuery = query(collection(db, "discussions"), orderBy("createdAt", "desc"), limit(3));
+        const discussionsActivityUnsubscribe = onSnapshot(recentDiscussionsQuery, (snapshot) => {
+             const discussionActivities = snapshot.docs.map(doc => ({
+                id: doc.id,
+                type: 'new_discussion' as const,
+                timestamp: (doc.data().createdAt as any).toDate(),
+                data: doc.data()
+            }));
+             setRecentActivity(prev => {
+                const otherActivities = prev.filter(item => item.type !== 'new_discussion');
+                const combined = [...discussionActivities, ...otherActivities];
+                return combined.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+            });
+             setLoadingActivity(false);
+        });
+
 
         return () => {
             usersUnsubscribe();
             coursesUnsubscribe();
+            usersActivityUnsubscribe();
+            discussionsActivityUnsubscribe();
         };
     }, []);
+    
+    const renderActivity = (item: ActivityItem) => {
+        const time = formatDistanceToNow(item.timestamp, { addSuffix: true });
+        
+        switch (item.type) {
+            case 'new_user':
+                return (
+                     <li key={item.id} className="flex items-center gap-4">
+                        <Avatar className="h-9 w-9">
+                            <AvatarImage src={item.data.avatarUrl} />
+                            <AvatarFallback><UserPlus className="h-4 w-4"/></AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <p className="text-sm"><span className="font-medium">{item.data.name}</span> just signed up.</p>
+                            <p className="text-xs text-muted-foreground">{time}</p>
+                        </div>
+                    </li>
+                );
+            case 'new_discussion':
+                 return (
+                     <li key={item.id} className="flex items-center gap-4">
+                        <Avatar className="h-9 w-9">
+                            <AvatarImage src={item.data.avatar} />
+                             <AvatarFallback>{item.data.user.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <p className="text-sm">
+                                <span className="font-medium">{item.data.user}</span> started a new discussion in <span className="font-medium">{item.data.course}</span>.
+                            </p>
+                            <p className="text-xs text-muted-foreground">{time}</p>
+                        </div>
+                    </li>
+                );
+            default:
+                return null;
+        }
+    }
+
 
   return (
     <div className="space-y-8">
@@ -42,7 +130,7 @@ export default function AdminDashboardPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">{userCount}</div>
-                    <p className="text-xs text-muted-foreground">+12% from last month</p>
+                    <p className="text-xs text-muted-foreground">Total registered users</p>
                 </CardContent>
             </Card>
             <Card>
@@ -52,17 +140,17 @@ export default function AdminDashboardPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">{courseCount}</div>
-                    <p className="text-xs text-muted-foreground">+5 New</p>
+                    <p className="text-xs text-muted-foreground">Total published courses</p>
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+                    <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">$12,345</div>
-                     <p className="text-xs text-muted-foreground">+8% from last month</p>
+                    <div className="text-2xl font-bold">${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                     <p className="text-xs text-muted-foreground">From all course sales</p>
                 </CardContent>
             </Card>
             <Card>
@@ -72,7 +160,7 @@ export default function AdminDashboardPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">68%</div>
-                    <p className="text-xs text-muted-foreground">-2% from last month</p>
+                    <p className="text-xs text-muted-foreground">Mock data</p>
                 </CardContent>
             </Card>
       </div>
@@ -83,20 +171,15 @@ export default function AdminDashboardPage() {
                 <CardDescription>A log of recent platform activities.</CardDescription>
             </CardHeader>
             <CardContent>
-                <ul className="space-y-4">
-                    {recentActivity.map(item => (
-                        <li key={item.activity} className="flex items-center gap-4">
-                            <Avatar className="h-9 w-9">
-                                <AvatarImage />
-                                <AvatarFallback>{item.user.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <p className="text-sm"><span className="font-medium">{item.user}</span> {item.activity}.</p>
-                                <p className="text-xs text-muted-foreground">{item.time}</p>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                {loadingActivity ? (
+                    <p>Loading activities...</p>
+                ) : recentActivity.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No recent activity.</p>
+                ) : (
+                    <ul className="space-y-4">
+                        {recentActivity.slice(0, 5).map(renderActivity)}
+                    </ul>
+                )}
             </CardContent>
         </Card>
          <Card>
