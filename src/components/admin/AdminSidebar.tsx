@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/sidebar';
 import { Logo } from '../shared/Logo';
 import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import {
   LayoutDashboard,
   BookOpen,
@@ -40,11 +39,11 @@ export function AdminSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="hidden border-r bg-card md:flex md:flex-col"
+      className="hidden border-r bg-sidebar text-sidebar-foreground md:flex md:flex-col"
     >
       <SidebarHeader className="h-16 flex items-center justify-between p-2">
         <Logo />
-        <SidebarTrigger>
+        <SidebarTrigger asChild>
           <Button variant="ghost" size="icon">
             <ChevronLeft />
           </Button>

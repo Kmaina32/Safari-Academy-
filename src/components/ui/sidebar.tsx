@@ -141,7 +141,7 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper w-full has-[[data-variant=inset]]:bg-sidebar",
               className
             )}
             data-state={state}
@@ -248,17 +248,16 @@ const Sidebar = React.forwardRef<
 Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  HTMLButtonElement,
+  React.ComponentProps<"button"> & { asChild?: boolean }
+>(({ className, onClick, asChild = false, ...props }, ref) => {
+  const { toggleSidebar } = useSidebar();
+  const Comp = asChild ? Slot : "button";
 
   return (
-    <Button
+    <Comp
       ref={ref}
       data-sidebar="trigger"
-      variant="ghost"
-      size="icon"
       className={cn("h-7 w-7", className)}
       onClick={(event) => {
         onClick?.(event)
@@ -268,7 +267,7 @@ const SidebarTrigger = React.forwardRef<
     >
       <PanelLeft />
       <span className="sr-only">Toggle Sidebar</span>
-    </Button>
+    </Comp>
   )
 })
 SidebarTrigger.displayName = "SidebarTrigger"
@@ -361,7 +360,7 @@ const SidebarFooter = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="footer"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn("flex flex-col gap-2 p-2 mt-auto", className)}
       {...props}
     />
   )
@@ -480,7 +479,7 @@ const SidebarMenu = React.forwardRef<
   <ul
     ref={ref}
     data-sidebar="menu"
-    className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+    className={cn("flex w-full min-w-0 flex-col gap-1 p-2", className)}
     {...props}
   />
 ))
@@ -522,8 +521,8 @@ const sidebarMenuButtonVariants = cva(
 )
 
 const SidebarMenuButton = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<"button"> & {
+  HTMLAnchorElement,
+  React.ComponentProps<"a"> & {
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
@@ -541,7 +540,7 @@ const SidebarMenuButton = React.forwardRef<
     },
     ref
   ) => {
-    const Comp = asChild ? Slot : "button"
+    const Comp = asChild ? Slot : "a"
     const { isMobile, state } = useSidebar()
 
     const button = (

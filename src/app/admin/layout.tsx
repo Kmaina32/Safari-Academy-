@@ -8,9 +8,9 @@ export default function AdminLayout({
 }) {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-muted/40">
+      <div className="flex min-h-screen">
         <AdminSidebar />
-        <div className="flex flex-col flex-1 pl-0 md:pl-[var(--sidebar-width-icon)] group-data-[state=expanded]:md:pl-[var(--sidebar-width)] transition-all">
+        <div className="flex flex-col flex-1 md:pl-[var(--sidebar-width-icon)] group-data-[state=expanded]:md:pl-[var(--sidebar-width)] transition-all">
           <main className="flex-1 p-4 sm:p-6">{children}</main>
         </div>
       </div>
