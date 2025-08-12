@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AlignJustify, Bell, LayoutDashboard, LogOut, Settings, User } from 'lucide-react';
+import { AlignJustify, Bell, Home, LayoutDashboard, LogOut, Settings, User } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -20,16 +20,31 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { user } from '@/lib/data';
 
-const navLinks = [
+const mainNavLinks = [
   { href: '/courses', label: 'Courses' },
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/admin', label: 'Admin' },
 ];
+
+const adminNavLinks = [
+    { href: '/admin', label: 'Dashboard'},
+    { href: '/admin/courses', label: 'Courses'},
+    { href: '/admin/users', label: 'Users'},
+    { href: '/admin/analytics', label: 'Analytics'},
+    { href: '/admin/discussions', label: 'Discussions'},
+    { href: '/admin/settings', label: 'Settings'},
+]
+
+const user = {
+    name: "Alex Doe",
+    email: "alex.doe@example.com",
+    avatarUrl: 'https://placehold.co/100x100'
+}
 
 export function Header() {
   const pathname = usePathname();
+  const isAdminPage = pathname.startsWith('/admin');
+  const navLinks = isAdminPage ? adminNavLinks : mainNavLinks;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
@@ -48,21 +63,24 @@ export function Header() {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-                    <nav className="flex flex-col gap-4 mt-8">
-                    <Logo />
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            className={cn(
-                                'text-lg font-medium text-muted-foreground transition-colors hover:text-foreground',
-                                pathname === link.href && 'text-foreground'
-                            )}
-                        >
-                            {link.label}
-                        </Link>
-                    ))}
-                    </nav>
+                    <div className="mt-8">
+                        <Logo />
+                        <nav className="flex flex-col gap-4 mt-8">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className={cn(
+                                    'text-lg font-medium text-muted-foreground transition-colors hover:text-foreground',
+                                    pathname === link.href && 'text-foreground'
+                                )}
+                            >
+                                {link.label}
+                            </Link>
+                        ))}
+                         {!isAdminPage && <Link href="/admin" className='text-lg font-medium text-muted-foreground transition-colors hover:text-foreground'>Admin</Link>}
+                        </nav>
+                    </div>
                 </SheetContent>
             </Sheet>
         </div>
@@ -81,8 +99,15 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          {!isAdminPage && <Link href="/admin" className='transition-colors hover:text-foreground/80 text-foreground/60'>Admin</Link>}
         </nav>
+
         <div className="flex flex-1 items-center justify-end space-x-4">
+            {isAdminPage && (
+                <Button variant="outline" size="sm" asChild>
+                    <Link href="/"><Home className="mr-2 h-4 w-4"/> View Site</Link>
+                </Button>
+            )}
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
             <span className="sr-only">Notifications</span>
@@ -104,9 +129,11 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                <Link href="/dashboard">Dashboard</Link>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <span>Dashboard</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/profile">
