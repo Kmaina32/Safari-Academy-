@@ -38,10 +38,17 @@ export default function AdminCoursesPage() {
                 coursesData.push({ id: doc.id, ...doc.data() } as Course);
             });
             setCourses(coursesData);
+        }, (error) => {
+            console.error("Error fetching courses: ", error);
+            toast({
+                title: "Error",
+                description: "Failed to fetch courses. Check Firestore permissions.",
+                variant: "destructive",
+            });
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [toast]);
 
     const handleDeleteCourse = async (courseId: string) => {
         try {

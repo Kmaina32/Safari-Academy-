@@ -5,8 +5,9 @@ import { LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, L
 import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import type { Course } from "@/lib/types";
 
-const monthlyRevenue = [
+const monthlyRevenueMock = [
   { month: 'Jan', revenue: 4000 },
   { month: 'Feb', revenue: 3000 },
   { month: 'Mar', revenue: 5000 },
@@ -28,13 +29,23 @@ const COLORS = ['#31AD48', '#D4A944', '#4A90E2', '#8B5CF6'];
 export default function AdminAnalyticsPage() {
   const [userCount, setUserCount] = useState(0);
   const [courseCount, setCourseCount] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   useEffect(() => {
     const usersUnsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
       setUserCount(snapshot.size);
     });
+    
     const coursesUnsubscribe = onSnapshot(collection(db, "courses"), (snapshot) => {
-      setCourseCount(snapshot.size);
+        let revenue = 0;
+        const coursesData: Course[] = [];
+        snapshot.forEach((doc) => {
+            const course = doc.data() as Course;
+            coursesData.push(course);
+            revenue += course.price || 0;
+        });
+        setCourseCount(coursesData.length);
+        setTotalRevenue(revenue);
     });
 
     return () => {
@@ -53,8 +64,8 @@ export default function AdminAnalyticsPage() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">$45,231.89</div>
-                <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+                <div className="text-2xl font-bold">${totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <p className="text-xs text-muted-foreground">From all course sales</p>
             </CardContent>
         </Card>
          <Card>
@@ -82,11 +93,11 @@ export default function AdminAnalyticsPage() {
         <Card className="lg:col-span-3">
           <CardHeader>
               <CardTitle>Revenue Over Time</CardTitle>
-              <CardDescription>Last 6 months revenue data.</CardDescription>
+              <CardDescription>Last 6 months revenue data (mock data).</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={monthlyRevenue}>
+                <LineChart data={monthlyRevenueMock}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -100,7 +111,7 @@ export default function AdminAnalyticsPage() {
         <Card className="lg:col-span-2">
             <CardHeader>
                 <CardTitle>Enrollments by Category</CardTitle>
-                <CardDescription>Student distribution across course categories.</CardDescription>
+                <CardDescription>Student distribution across course categories (mock data).</CardDescription>
             </CardHeader>
             <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
