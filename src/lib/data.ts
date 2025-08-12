@@ -78,11 +78,13 @@ export const enrolledCourses: EnrolledCourse[] = [
     {
         courseId: 'course-1',
         progress: 75,
-        completedLessons: 8
+        completedLessons: 1,
+        totalLessons: 2,
     },
     {
         courseId: 'course-3',
         progress: 30,
-        completedLessons: 2
+        completedLessons: 1,
+        totalLessons: 2,
     }
 ]

@@ -36,4 +36,5 @@ export type EnrolledCourse = {
     courseId: string;
     progress: number; // percentage
     completedLessons: number;
+    totalLessons: number;
 }

@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { AlignJustify, Bell, LayoutDashboard, LogOut, Settings, User } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
-import { user } from '@/lib/mock-data';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
@@ -21,6 +20,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { user } from '@/lib/data';
 
 const navLinks = [
   { href: '/courses', label: 'Courses' },
@@ -108,13 +108,17 @@ export function Header() {
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 <Link href="/dashboard">Dashboard</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/profile">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/settings">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>

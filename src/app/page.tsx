@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { CourseCard } from '@/components/courses/CourseCard';
-import { courses } from '@/lib/mock-data';
 import Link from 'next/link';
+import { courses } from '@/lib/data';
 
 export default function Home() {
   return (
@@ -21,7 +21,7 @@ export default function Home() {
               Explore a world of knowledge with our expert-led courses. Start your learning journey today and achieve your goals.
             </p>
             <Button size="lg" asChild>
-              <Link href="#featured-courses">
+              <Link href="/courses">
                 Browse Courses <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>

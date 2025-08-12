@@ -34,7 +34,7 @@ export function EnrolledCourseCard({ course }: EnrolledCourseCardProps) {
       <CardContent className="flex-grow p-4 pt-0">
         <div className="space-y-2">
             <Progress value={course.progress} className="h-2" />
-            <p className="text-xs text-muted-foreground">{course.progress}% complete ({course.completedLessons}/{course.lessons.length} lessons)</p>
+            <p className="text-xs text-muted-foreground">{course.progress}% complete ({course.completedLessons}/{course.totalLessons} lessons)</p>
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">

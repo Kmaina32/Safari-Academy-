@@ -1,5 +1,5 @@
 import { EnrolledCourseCard } from "@/components/dashboard/EnrolledCourseCard";
-import { courses, enrolledCourses, user } from "@/lib/mock-data";
+import { courses, enrolledCourses, user } from "@/lib/data";
 
 export default function DashboardPage() {
     const userEnrolledCourses = enrolledCourses.map(enrolled => {
