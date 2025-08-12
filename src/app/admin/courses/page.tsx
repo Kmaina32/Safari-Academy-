@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, ArrowUpDown, Trash2, Sparkles, Pencil } from "lucide-react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, PlusCircle, ArrowUpDown, Trash2, Sparkles, Pencil, Eye } from "lucide-react";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import React, { useState, useEffect } from 'react';
@@ -21,7 +21,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast";
 
@@ -111,7 +110,7 @@ export default function AdminCoursesPage() {
                                             <ArrowUpDown className="ml-2 h-4 w-4" />
                                         </Button>
                                     </TableHead>
-                                    <TableHead>Rating</TableHead>
+                                    <TableHead>Price</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -123,10 +122,12 @@ export default function AdminCoursesPage() {
                                         </TableCell>
                                         <TableCell className="font-medium">{course.title}</TableCell>
                                         <TableCell>
-                                            <Badge variant={'secondary'}>Published</Badge>
+                                            <Badge variant={course.status === 'Published' ? 'default' : 'secondary'}>
+                                                {course.status}
+                                            </Badge>
                                         </TableCell>
                                         <TableCell>{course.enrolledStudents.toLocaleString()}</TableCell>
-                                        <TableCell>{course.rating}</TableCell>
+                                        <TableCell>{course.price > 0 ? `$${course.price.toFixed(2)}` : 'Free'}</TableCell>
                                         <TableCell className="text-right">
                                             <AlertDialog>
                                                 <DropdownMenu>
@@ -138,12 +139,18 @@ export default function AdminCoursesPage() {
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                         <DropdownMenuItem asChild>
+                                                            <Link href={`/courses/${course.id}`} target="_blank">
+                                                                <Eye className="mr-2 h-4 w-4" />
+                                                                View Course
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem asChild>
                                                             <Link href={`/admin/courses/${course.id}/edit`}>
                                                                 <Pencil className="mr-2 h-4 w-4" />
                                                                 Edit
                                                             </Link>
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem>View Analytics</DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
                                                         <AlertDialogTrigger asChild>
                                                             <DropdownMenuItem className="text-destructive">
                                                                  <Trash2 className="mr-2 h-4 w-4" />

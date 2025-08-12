@@ -24,6 +24,7 @@ import { Card } from "../ui/card"
 import { Switch } from "../ui/switch"
 import React from "react"
 import { ScrollArea } from "../ui/scroll-area"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 const lessonSchema = z.object({
     id: z.string().optional(),
@@ -48,6 +49,9 @@ export const formSchema = z.object({
   duration: z.string().min(2),
   isFree: z.boolean().default(false),
   price: z.coerce.number().min(0, "Price cannot be negative."),
+  status: z.enum(["Published", "Draft"]),
+  targetAudience: z.string().min(10, "Please describe the target audience."),
+  prerequisites: z.string().optional(),
   modules: z.array(moduleSchema).min(1, "Course must have at least one module."),
 }).refine(data => data.isFree || data.price > 0, {
     message: "Price must be greater than 0 for paid courses.",
@@ -138,6 +142,10 @@ export function CourseForm({ onCourseHandled, form, initialData, courseId }: Cou
             <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="Introduction to Web Development" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Short Description</FormLabel><FormControl><Textarea placeholder="A brief summary of the course..." {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="longDescription" render={({ field }) => (<FormItem><FormLabel>Full Description</FormLabel><FormControl><Textarea placeholder="A detailed description of the course content..." {...field} rows={5} /></FormControl><FormMessage /></FormItem>)} />
+            <div className="grid md:grid-cols-2 gap-4">
+                <FormField control={form.control} name="targetAudience" render={({ field }) => (<FormItem><FormLabel>Target Audience</FormLabel><FormControl><Textarea placeholder="e.g., Beginners with no prior experience..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="prerequisites" render={({ field }) => (<FormItem><FormLabel>Prerequisites (Optional)</FormLabel><FormControl><Textarea placeholder="e.g., Basic understanding of HTML..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+            </div>
             <div className="flex gap-4">
                 <FormField control={form.control} name="instructor" render={({ field }) => (<FormItem className="flex-1"><FormLabel>Instructor</FormLabel><FormControl><Input placeholder="Jane Smith" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="category" render={({ field }) => (<FormItem className="flex-1"><FormLabel>Category</FormLabel><FormControl><Input placeholder="Development" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -145,6 +153,27 @@ export function CourseForm({ onCourseHandled, form, initialData, courseId }: Cou
             </div>
 
             <div className="flex gap-4 items-end">
+                 <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="Published">Published</SelectItem>
+                                <SelectItem value="Draft">Draft</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
                 <FormField
                     control={form.control}
                     name="isFree"

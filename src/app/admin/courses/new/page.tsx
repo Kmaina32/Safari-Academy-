@@ -42,6 +42,9 @@ function AiGenerator({ form, setFormKey }: { form: UseFormReturn<CourseFormValue
                 instructor: generatedData.instructor,
                 category: generatedData.category,
                 duration: generatedData.duration,
+                status: 'Draft',
+                targetAudience: 'Beginners interested in this topic.',
+                prerequisites: '',
                 isFree: false,
                 price: 29.99, // Default price
                 modules: generatedData.modules.map(m => ({
@@ -117,6 +120,9 @@ export default function NewCoursePage() {
           instructor: "",
           category: "",
           duration: "",
+          status: "Draft",
+          targetAudience: "",
+          prerequisites: "",
           isFree: false,
           price: 29.99,
           modules: [{ title: "Module 1", imageUrl: "https://placehold.co/600x400", lessons: [{ title: "Lesson 1", content: "", videoUrl: "" }] }],

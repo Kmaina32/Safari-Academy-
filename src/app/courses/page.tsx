@@ -1,7 +1,7 @@
 
 'use client';
 import { CourseCard } from '@/components/courses/CourseCard';
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course } from '@/lib/types';
 import React, { useState, useEffect } from 'react';
@@ -14,7 +14,10 @@ export default function CoursesPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "courses"), 
+    // Only fetch courses that are "Published"
+    const q = query(collection(db, "courses"), where("status", "==", "Published"));
+    
+    const unsubscribe = onSnapshot(q, 
       (querySnapshot) => {
         const coursesData: Course[] = [];
         querySnapshot.forEach((doc) => {

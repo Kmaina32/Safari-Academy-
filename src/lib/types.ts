@@ -14,6 +14,9 @@ export type Course = {
   enrolledStudents: number;
   modules: Module[];
   price: number; // 0 for free
+  status: 'Published' | 'Draft';
+  targetAudience: string;
+  prerequisites: string;
 };
 
 export type Lesson = {
