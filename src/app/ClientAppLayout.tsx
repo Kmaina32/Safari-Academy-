@@ -65,8 +65,16 @@ export default function ClientAppLayout({ children }: { children: React.ReactNod
 
     useEffect(() => {
         const checkMaintenanceMode = async () => {
-            const settings = await getAppSettings();
             const adminStatus = await isUserAdmin(user);
+            
+            // If the user is an admin, we don't need to check maintenance settings.
+            // We can just let them through immediately.
+            if (adminStatus) {
+                 setMaintenanceSettings({ active: false, endTime: '', checked: true, isAdmin: true });
+                 return;
+            }
+
+            const settings = await getAppSettings();
 
             if (settings) {
                 const isMaintenanceActive = settings.maintenanceMode && new Date(settings.maintenanceEndTime) > new Date();

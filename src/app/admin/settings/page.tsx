@@ -51,6 +51,12 @@ export default function AdminSettingsPage() {
                 const appDocSnap = await getDoc(appDocRef);
                 if(appDocSnap.exists()) {
                     setAppSettings(appDocSnap.data() as AppSettings);
+                } else {
+                    // Set default to off if no settings document exists
+                    setAppSettings({
+                        maintenanceMode: false,
+                        maintenanceEndTime: new Date().toISOString(),
+                    })
                 }
 
             } catch (error) {
