@@ -57,6 +57,8 @@ export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormPro
         name: "questions"
     });
 
+    const watchedQuestions = form.watch('questions');
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             await addDoc(collection(db, "assignments"), values);
@@ -117,7 +119,9 @@ export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormPro
 
                 <div className="space-y-4">
                     <FormLabel>Questions</FormLabel>
-                    {fields.map((field, index) => (
+                    {fields.map((field, index) => {
+                        const currentOptions = watchedQuestions[index]?.options || [];
+                        return (
                         <Card key={field.id} className="p-4 bg-secondary">
                              <div className="space-y-4">
                                 <div className="flex justify-between items-center">
@@ -141,7 +145,7 @@ export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormPro
                                 />
                                 {field.options.map((option, optionIndex) => (
                                     <FormField
-                                        key={optionIndex}
+                                        key={`${field.id}-option-${optionIndex}`}
                                         control={form.control}
                                         name={`questions.${index}.options.${optionIndex}`}
                                         render={({ field }) => (
@@ -168,7 +172,7 @@ export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormPro
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {field.options.map((_, i) => (
+                                                    {currentOptions.map((_, i) => (
                                                         <SelectItem key={i} value={String(i)}>Option {i + 1}</SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -179,7 +183,7 @@ export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormPro
                                 />
                             </div>
                         </Card>
-                    ))}
+                    )})}
                      <Button type="button" variant="outline" size="sm" onClick={() => append({ text: "", options: ["", ""], correctAnswer: 0 })}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Add Question
                     </Button>
