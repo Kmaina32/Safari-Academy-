@@ -6,13 +6,14 @@ import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAdf4on7PmsA6r1Ahb4vQmgCKxWlQAi_j0",
-  authDomain: "facefinder-xvhoj.firebaseapp.com",
-  projectId: "facefinder-xvhoj",
-  storageBucket: "facefinder-xvhoj.firebasestorage.app",
-  messagingSenderId: "993650061227",
-  appId: "1:993650061227:web:30648b8d25bcb15bfa6cee"
+  apiKey: "AIzaSyCBDQDJuciLptV00kitKmf0oAXJ4OQonjI",
+  authDomain: "safari-academy.firebaseapp.com",
+  projectId: "safari-academy",
+  storageBucket: "safari-academy.appspot.com",
+  messagingSenderId: "77950866087",
+  appId: "1:77950866087:web:71e8a83441535ba6284a3c"
 };
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
