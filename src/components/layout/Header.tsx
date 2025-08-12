@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AlignJustify, Bell, Home, LayoutDashboard, LogOut, Settings, User } from 'lucide-react';
+import { AlignJustify, Bell, Home, LayoutDashboard, LogOut, Settings, User, Shield } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -78,7 +78,6 @@ export function Header() {
                                 {link.label}
                             </Link>
                         ))}
-                         {!isAdminPage && <Link href="/admin" className='text-lg font-medium text-muted-foreground transition-colors hover:text-foreground'>Admin</Link>}
                         </nav>
                     </div>
                 </SheetContent>
@@ -99,7 +98,6 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          {!isAdminPage && <Link href="/admin" className='transition-colors hover:text-foreground/80 text-foreground/60'>Admin</Link>}
         </nav>
 
         <div className="flex flex-1 items-center justify-end space-x-4">
@@ -129,6 +127,14 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+               {!isAdminPage && (
+                <DropdownMenuItem asChild>
+                  <Link href="/admin">
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Admin</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem asChild>
                 <Link href="/dashboard">
                   <LayoutDashboard className="mr-2 h-4 w-4" />
