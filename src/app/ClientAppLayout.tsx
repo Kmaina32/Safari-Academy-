@@ -16,9 +16,14 @@ let settingsCache: AppSettings | null = null;
 let lastFetchTime: number = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-async function getAppSettings(): Promise<AppSettings | null> {
+export function clearSettingsCache() {
+    settingsCache = null;
+    lastFetchTime = 0;
+}
+
+async function getAppSettings(forceRefresh = false): Promise<AppSettings | null> {
     const now = Date.now();
-    if (settingsCache && (now - lastFetchTime < CACHE_DURATION)) {
+    if (!forceRefresh && settingsCache && (now - lastFetchTime < CACHE_DURATION)) {
         return settingsCache;
     }
 

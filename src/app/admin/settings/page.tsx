@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import type { AppSettings } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
+import { clearSettingsCache } from '@/app/ClientAppLayout';
 
 
 interface HomePageSettings {
@@ -88,9 +89,10 @@ export default function AdminSettingsPage() {
          try {
             const docRef = doc(db, "settings", "app");
             await setDoc(docRef, appSettings, { merge: true });
+            clearSettingsCache(); // Invalidate the cache
             toast({
                 title: "Platform Settings Saved!",
-                description: "Your platform settings have been updated.",
+                description: "Your platform settings have been updated and will take effect immediately.",
             });
         } catch (error) {
             console.error("Error saving settings: ", error);
