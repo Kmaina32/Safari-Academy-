@@ -35,6 +35,7 @@ const lessonSchema = z.object({
 
 const moduleSchema = z.object({
     title: z.string().min(2, "Module title is too short."),
+    imageUrl: z.string().url("Must be a valid URL.").optional().or(z.literal('')),
     lessons: z.array(lessonSchema).min(1, "Each module must have at least one lesson."),
 })
 
@@ -71,7 +72,7 @@ export function CourseForm({ onCourseAdded }: CourseFormProps) {
       duration: "",
       isFree: false,
       price: 29.99,
-      modules: [{ title: "Module 1", lessons: [{ title: "Lesson 1", content: "", videoUrl: "" }] }],
+      modules: [{ title: "Module 1", imageUrl: "https://placehold.co/600x400", lessons: [{ title: "Lesson 1", content: "", videoUrl: "" }] }],
     },
   })
 
@@ -180,16 +181,17 @@ export function CourseForm({ onCourseAdded }: CourseFormProps) {
                 <div className="space-y-4 mt-2">
                     {moduleFields.map((moduleField, moduleIndex) => (
                         <Card key={moduleField.id} className="p-4 bg-secondary/50 space-y-4">
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-center gap-4">
                                 <FormField control={form.control} name={`modules.${moduleIndex}.title`} render={({ field }) => (<FormItem className="flex-1"><FormLabel>Module {moduleIndex + 1} Title</FormLabel><FormControl><Input placeholder="Module Title" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <Button type="button" variant="ghost" size="icon" onClick={() => removeModule(moduleIndex)} disabled={moduleFields.length <= 1}>
                                     <Trash2 className="h-4 w-4 text-destructive"/>
                                 </Button>
                             </div>
+                             <FormField control={form.control} name={`modules.${moduleIndex}.imageUrl`} render={({ field }) => (<FormItem><FormLabel>Module Image URL</FormLabel><FormControl><Input placeholder="https://placehold.co/600x400" {...field} /></FormControl><FormMessage /></FormItem>)} />
                             <LessonArray control={form.control} moduleIndex={moduleIndex} />
                         </Card>
                     ))}
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendModule({ title: `Module ${moduleFields.length + 1}`, lessons: [{ title: "Lesson 1", content: "", videoUrl: "" }] })}>
+                    <Button type="button" variant="outline" size="sm" onClick={() => appendModule({ title: `Module ${moduleFields.length + 1}`, imageUrl: 'https://placehold.co/600x400', lessons: [{ title: "Lesson 1", content: "", videoUrl: "" }] })}>
                         <PlusCircle className="mr-2 h-4 w-4" /> Add Module
                     </Button>
                 </div>

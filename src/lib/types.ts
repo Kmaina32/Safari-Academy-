@@ -26,6 +26,7 @@ export type Lesson = {
 export type Module = {
   title: string;
   lessons: Lesson[];
+  imageUrl: string;
 }
 
 export type User = {
