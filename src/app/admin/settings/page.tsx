@@ -7,11 +7,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from '@/components/ui/textarea';
-import { doc, getDoc, setDoc, addDoc, collection } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
-import { generateCourse } from '@/ai/flows/course-generator';
+import type { AppSettings } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 
 
@@ -23,39 +23,40 @@ interface HomePageSettings {
 }
 
 export default function AdminSettingsPage() {
-    const [settings, setSettings] = useState<HomePageSettings>({
+    const [homepageSettings, setHomepageSettings] = useState<HomePageSettings>({
         heroTitle: '',
         heroSubtitle: '',
         heroImageUrl: '',
         authBackgroundImageUrl: '',
     });
+    const [appSettings, setAppSettings] = useState<AppSettings>({
+        maintenanceMode: false,
+        maintenanceEndTime: new Date().toISOString(),
+    })
     const [loading, setLoading] = useState(true);
-    const [generating, setGenerating] = useState(false);
-    const [courseTopic, setCourseTopic] = useState('');
     const { toast } = useToast();
 
     useEffect(() => {
         const fetchSettings = async () => {
             setLoading(true);
             try {
-                const docRef = doc(db, "settings", "homepage");
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    setSettings(docSnap.data() as HomePageSettings);
-                } else {
-                    // Initialize with default values if no settings exist
-                    setSettings({
-                        heroTitle: "Unlock Your Potential with Safari Academy",
-                        heroSubtitle: "Explore a world of knowledge with our expert-led courses...",
-                        heroImageUrl: "https://placehold.co/1200x600",
-                        authBackgroundImageUrl: "https://placehold.co/1920x1080",
-                    });
+                const homepageDocRef = doc(db, "settings", "homepage");
+                const homepageDocSnap = await getDoc(homepageDocRef);
+                if (homepageDocSnap.exists()) {
+                    setHomepageSettings(homepageDocSnap.data() as HomePageSettings);
                 }
+
+                const appDocRef = doc(db, "settings", "app");
+                const appDocSnap = await getDoc(appDocRef);
+                if(appDocSnap.exists()) {
+                    setAppSettings(appDocSnap.data() as AppSettings);
+                }
+
             } catch (error) {
                 console.error("Error fetching settings:", error);
                  toast({
                     title: "Error",
-                    description: "Could not fetch homepage settings.",
+                    description: "Could not fetch settings.",
                     variant: "destructive",
                 });
             } finally {
@@ -65,72 +66,39 @@ export default function AdminSettingsPage() {
         fetchSettings();
     }, [toast]);
 
-    const handleSave = async () => {
+    const handleSaveHomepage = async () => {
         try {
             const docRef = doc(db, "settings", "homepage");
-            await setDoc(docRef, settings, { merge: true });
+            await setDoc(docRef, homepageSettings, { merge: true });
             toast({
-                title: "Settings Saved!",
+                title: "Homepage Settings Saved!",
                 description: "Your homepage settings have been updated.",
             });
         } catch (error) {
             console.error("Error saving settings: ", error);
             toast({
                 title: "Error",
-                description: "There was an error saving your settings.",
+                description: "There was an error saving your homepage settings.",
                 variant: "destructive",
             });
         }
     };
-    
-    const handleGenerateCourse = async () => {
-        if (!courseTopic) {
-            toast({
-                title: "Topic Required",
-                description: "Please enter a topic for the course.",
-                variant: "destructive",
-            });
-            return;
-        }
-        setGenerating(true);
-        try {
-            const generatedData = await generateCourse({ topic: courseTopic });
-            const allLessons = generatedData.modules.flatMap((m, moduleIndex) => m.lessons.map((l, lessonIndex) => ({
-                ...l,
-                id: `m${moduleIndex+1}-l${lessonIndex+1}`,
-            })));
 
-            await addDoc(collection(db, "courses"), {
-                ...generatedData,
-                imageUrl: `https://placehold.co/600x400?text=${generatedData.title.replace(/\s/g, '+')}`,
-                rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
-                enrolledStudents: Math.floor(Math.random() * 1000),
-                price: Math.floor(Math.random() * 8) * 10 + 29.99, // Random price
-                lessons: allLessons,
-                modules: generatedData.modules.map((m, moduleIndex) => ({
-                    ...m,
-                    imageUrl: "https://placehold.co/600x400",
-                    lessons: m.lessons.map((l, lessonIndex) => ({
-                        ...l,
-                        id: `m${moduleIndex+1}-l${lessonIndex+1}`,
-                    }))
-                })),
-            });
-
+    const handleSavePlatform = async () => {
+         try {
+            const docRef = doc(db, "settings", "app");
+            await setDoc(docRef, appSettings, { merge: true });
             toast({
-                title: "Course Generated!",
-                description: `Successfully created the course: "${generatedData.title}"`,
+                title: "Platform Settings Saved!",
+                description: "Your platform settings have been updated.",
             });
-            setCourseTopic('');
         } catch (error) {
-             console.error("Error generating course: ", error);
-             toast({
+            console.error("Error saving settings: ", error);
+            toast({
                 title: "Error",
-                description: "There was an error generating the course.",
+                description: "There was an error saving your platform settings.",
                 variant: "destructive",
             });
-        } finally {
-            setGenerating(false);
         }
     }
 
@@ -153,8 +121,8 @@ export default function AdminSettingsPage() {
                 <Label htmlFor="hero-title">Hero Title</Label>
                 <Input 
                     id="hero-title" 
-                    value={settings.heroTitle}
-                    onChange={(e) => setSettings({...settings, heroTitle: e.target.value})}
+                    value={homepageSettings.heroTitle}
+                    onChange={(e) => setHomepageSettings({...homepageSettings, heroTitle: e.target.value})}
                     placeholder="Unlock Your Potential with Safari Academy" 
                 />
             </div>
@@ -162,8 +130,8 @@ export default function AdminSettingsPage() {
                 <Label htmlFor="hero-subtitle">Hero Subtitle</Label>
                 <Textarea 
                     id="hero-subtitle" 
-                    value={settings.heroSubtitle}
-                    onChange={(e) => setSettings({...settings, heroSubtitle: e.target.value})}
+                    value={homepageSettings.heroSubtitle}
+                    onChange={(e) => setHomepageSettings({...homepageSettings, heroSubtitle: e.target.value})}
                     placeholder="Explore a world of knowledge with our expert-led courses..." 
                     rows={3}
                 />
@@ -172,8 +140,8 @@ export default function AdminSettingsPage() {
                 <Label htmlFor="hero-image-url">Hero Image URL</Label>
                 <Input 
                     id="hero-image-url" 
-                    value={settings.heroImageUrl}
-                    onChange={(e) => setSettings({...settings, heroImageUrl: e.target.value})}
+                    value={homepageSettings.heroImageUrl}
+                    onChange={(e) => setHomepageSettings({...homepageSettings, heroImageUrl: e.target.value})}
                     placeholder="https://example.com/hero-image.jpg"
                 />
             </div>
@@ -181,14 +149,14 @@ export default function AdminSettingsPage() {
                 <Label htmlFor="auth-bg-url">Auth Pages Background URL</Label>
                 <Input 
                     id="auth-bg-url" 
-                    value={settings.authBackgroundImageUrl}
-                    onChange={(e) => setSettings({...settings, authBackgroundImageUrl: e.target.value})}
+                    value={homepageSettings.authBackgroundImageUrl}
+                    onChange={(e) => setHomepageSettings({...homepageSettings, authBackgroundImageUrl: e.target.value})}
                     placeholder="https://example.com/auth-background.jpg"
                 />
             </div>
         </CardContent>
          <CardFooter className="border-t px-6 py-4">
-            <Button onClick={handleSave}>Save Homepage Settings</Button>
+            <Button onClick={handleSaveHomepage}>Save Homepage Settings</Button>
         </CardFooter>
       </Card>
 
@@ -198,27 +166,30 @@ export default function AdminSettingsPage() {
             <CardDescription>Manage your e-learning platform's global settings.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="platform-name">Platform Name</Label>
-                <Input id="platform-name" defaultValue="Safari Academy" />
-            </div>
-            <div className="flex items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
-                    <Label>New User Registration</Label>
-                    <p className="text-xs text-muted-foreground">Allow new users to sign up.</p>
-                </div>
-                <Switch defaultChecked/>
-            </div>
-             <div className="flex items-center justify-between rounded-lg border p-3">
+            <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                     <Label>Maintenance Mode</Label>
-                    <p className="text-xs text-muted-foreground">Temporarily disable access to the platform.</p>
+                    <p className="text-xs text-muted-foreground">Temporarily disable access to the platform for non-admins.</p>
                 </div>
-                <Switch />
+                <Switch 
+                    checked={appSettings.maintenanceMode}
+                    onCheckedChange={(checked) => setAppSettings(prev => ({...prev, maintenanceMode: checked}))}
+                />
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="maintenance-end-time">Maintenance End Time</Label>
+                <Input 
+                    id="maintenance-end-time" 
+                    type="datetime-local"
+                    value={appSettings.maintenanceEndTime.substring(0,16)}
+                    onChange={(e) => setAppSettings(prev => ({...prev, maintenanceEndTime: new Date(e.target.value).toISOString()}))}
+                    disabled={!appSettings.maintenanceMode}
+                />
+                <p className="text-xs text-muted-foreground">Set the time when maintenance mode will automatically turn off.</p>
             </div>
         </CardContent>
         <CardFooter className="border-t px-6 py-4">
-            <Button>Save Platform Settings</Button>
+            <Button onClick={handleSavePlatform}>Save Platform Settings</Button>
         </CardFooter>
       </Card>
     </div>

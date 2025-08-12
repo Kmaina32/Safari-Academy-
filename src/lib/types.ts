@@ -78,3 +78,20 @@ export type Payment = {
     transactionId: string; // From the payment provider
     createdAt: Date;
 }
+
+export type Certificate = {
+    id?: string;
+    userId: string;
+    userName: string;
+    courseId: string;
+    courseTitle: string;
+    issuedAt: {
+        seconds: number;
+        nanoseconds: number;
+    };
+}
+
+export type AppSettings = {
+    maintenanceMode: boolean;
+    maintenanceEndTime: string;
+}
