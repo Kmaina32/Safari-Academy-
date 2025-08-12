@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
         hostname: 'lirp.cdn-website.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.bmbsmart.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
