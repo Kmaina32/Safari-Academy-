@@ -44,8 +44,8 @@ export default function GenerateCoursePage() {
                 enrolledStudents: Math.floor(Math.random() * 1000),
                 price: Math.floor(Math.random() * 8) * 10 + 29.99,
                 status: 'Draft',
-                targetAudience: 'Beginners',
-                prerequisites: 'None',
+                targetAudience: 'Beginners interested in this topic.',
+                prerequisites: 'None required.',
                 lessons: allLessons,
                 modules: generatedData.modules.map((m, moduleIndex) => ({
                     ...m,

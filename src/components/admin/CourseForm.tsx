@@ -43,7 +43,7 @@ const moduleSchema = z.object({
 export const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
-  longDescription: z.string().min(20, "Long description must be at least 20 characters."),
+  longDescription: z.string().optional(),
   instructor: z.string().min(2),
   category: z.string().min(2),
   duration: z.string().min(2),
@@ -141,7 +141,7 @@ export function CourseForm({ onCourseHandled, form, initialData, courseId }: Cou
         <div className="space-y-6">
             <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Title</FormLabel><FormControl><Input placeholder="Introduction to Web Development" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Short Description</FormLabel><FormControl><Textarea placeholder="A brief summary of the course..." {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="longDescription" render={({ field }) => (<FormItem><FormLabel>Full Description</FormLabel><FormControl><Textarea placeholder="A detailed description of the course content..." {...field} rows={5} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="longDescription" render={({ field }) => (<FormItem><FormLabel>Full Description (Optional)</FormLabel><FormControl><Textarea placeholder="A detailed description of the course content..." {...field} rows={5} /></FormControl><FormMessage /></FormItem>)} />
             <div className="grid md:grid-cols-2 gap-4">
                 <FormField control={form.control} name="targetAudience" render={({ field }) => (<FormItem><FormLabel>Target Audience</FormLabel><FormControl><Textarea placeholder="e.g., Beginners with no prior experience..." {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="prerequisites" render={({ field }) => (<FormItem><FormLabel>Prerequisites (Optional)</FormLabel><FormControl><Textarea placeholder="e.g., Basic understanding of HTML..." {...field} /></FormControl><FormMessage /></FormItem>)} />
