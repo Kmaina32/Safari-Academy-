@@ -4,52 +4,59 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      // Check if the user is authenticated, exists in the users collection, and has the 'Admin' role.
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
     }
 
     match /users/{userId} {
-      allow create: if request.auth != null;
-      allow read, update: if request.auth.uid == userId;
-      // Admins can manage any user
+      // Admins can manage all users.
       allow read, write: if isAdmin();
+      // Authenticated users can read and update their own profile.
+      allow read, update: if request.auth.uid == userId;
     }
 
     match /courses/{courseId} {
-        // Admins can perform any action on any course
-        allow read, write: if isAdmin();
-
-        // Anyone can read published courses
-        allow read: if resource.data.status == 'Published';
+        // Anyone can read published courses. Admins can read any course.
+        allow read: if resource.data.status == 'Published' || isAdmin();
+        // Only admins can create, update, or delete courses.
+        allow create, update, delete: if isAdmin();
     }
-
+    
     match /quizzes/{quizId} {
-        // Admins can do anything
-        allow read, write: if isAdmin();
-        
-        // Logged-in students can read quizzes
-        allow read: if request.auth != null;
-    }
-
-    match /certificates/{certId} {
-        allow read, write: if isAdmin();
-        allow read: if request.auth.uid == resource.data.userId;
+      // Only admins can manage quizzes.
+      allow read, write: if isAdmin();
+      // Authenticated users can view quizzes.
+      allow read: if request.auth != null;
     }
 
     match /discussions/{discussionId} {
-        allow read, write: if request.auth != null;
+        // Any authenticated user can read or create discussions.
+        allow read, create: if request.auth != null;
+        // Only admins can modify/delete discussions.
+        allow write: if isAdmin();
     }
     
-    match /settings/{docId} {
-        // Admins can change settings
-        allow write: if isAdmin();
-        
-        // Anyone can read homepage settings for the landing page UI
-        // Authenticated users can read other settings (like for certificates)
-        allow read: if docId == 'homepage' || request.auth != null;
+    match /certificates/{certId} {
+        // Users can read certificates issued to them.
+        allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+        // Only admins can create certificates.
+        allow create: if isAdmin();
     }
 
-    match /maintenance/{docId} {
-        allow read, write: if isAdmin();
+    match /maintenance/settings {
+        // Anyone can read maintenance settings to see if the site is down.
+        allow read: if true;
+        // Only admins can change maintenance settings.
+        allow write: if isAdmin();
+    }
+    
+    match /settings/homepage {
+        // Anyone can read the homepage settings.
+        allow read: if true;
+        // Only admins can change homepage settings.
+        allow write: if isAdmin();
     }
   }
 }
