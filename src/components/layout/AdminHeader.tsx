@@ -28,6 +28,7 @@ import {
   MessageSquare,
   Wrench,
   ChevronDown,
+  TestTube2,
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { useAuth } from '@/hooks/use-auth';
@@ -131,6 +132,12 @@ export function AdminHeader() {
                     <Link href="/admin/maintenance">
                         <Wrench className="mr-2 h-4 w-4" />
                         Maintenance
+                    </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                    <Link href="/admin/tests">
+                        <TestTube2 className="mr-2 h-4 w-4" />
+                        Tests
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>
