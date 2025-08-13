@@ -14,7 +14,8 @@ function LayoutManager({ children }: { children: React.ReactNode }) {
     const { loading } = useAuth();
     const pathname = usePathname();
     const noLayoutPages = ['/login', '/signup', '/forgot-password'];
-    const hideLayout = noLayoutPages.includes(pathname);
+    const isAdminPage = pathname.startsWith('/admin');
+    const hideLayout = noLayoutPages.includes(pathname) || isAdminPage;
 
     if (loading) {
         return <AppLoader />;
