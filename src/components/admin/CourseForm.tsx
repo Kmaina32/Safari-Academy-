@@ -81,16 +81,10 @@ export function CourseForm({ onCourseHandled, form, initialData, courseId }: Cou
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
         const finalPrice = values.isFree ? 0 : values.price;
-        const allLessons = values.modules.flatMap((m, moduleIndex) => m.lessons.map((l, lessonIndex) => ({
-            ...l,
-            id: `m${moduleIndex+1}-l${lessonIndex+1}`,
-            duration: l.duration || `${Math.floor(Math.random() * 10) + 5} min`
-        })));
-
+        
         const courseData = {
             ...values,
             price: finalPrice,
-            lessons: allLessons,
             modules: values.modules.map((m, moduleIndex) => ({
                 ...m,
                 lessons: m.lessons.map((l, lessonIndex) => ({

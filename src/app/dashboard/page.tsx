@@ -21,13 +21,16 @@ async function getDemoCourses(): Promise<(Course & Partial<EnrolledCourseType>)[
         });
 
         // Create fake enrollment data for the demo courses
-        return courses.map(course => ({
-            ...course,
-            courseId: course.id!,
-            progress: Math.floor(Math.random() * 100),
-            completedLessons: Math.floor(Math.random() * (course.lessons?.length || 0)),
-            totalLessons: course.lessons?.length || 10,
-        }));
+        return courses.map(course => {
+            const allLessons = course.modules?.flatMap(m => m.lessons) || [];
+            return {
+                ...course,
+                courseId: course.id!,
+                progress: Math.floor(Math.random() * 100),
+                completedLessons: Math.floor(Math.random() * allLessons.length),
+                totalLessons: allLessons.length,
+            }
+        });
     } catch (error) {
         console.error("Error fetching demo courses:", error);
         return [];

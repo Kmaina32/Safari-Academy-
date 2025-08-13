@@ -53,7 +53,9 @@ export default function CourseLearnPage() {
   const [loading, setLoading] = React.useState(true);
   const [currentPage, setCurrentPage] = React.useState(0);
 
-  const lessonId = searchParams.get('lesson') || course?.lessons?.[0]?.id;
+  const allLessons = React.useMemo(() => course?.modules?.flatMap(m => m.lessons) || [], [course]);
+
+  const lessonId = searchParams.get('lesson') || allLessons?.[0]?.id;
 
   React.useEffect(() => {
     if (id) {
@@ -93,7 +95,7 @@ export default function CourseLearnPage() {
     return notFound();
   }
   
-  const currentLesson = course.lessons?.find(l => l.id === lessonId) || course.lessons?.[0];
+  const currentLesson = allLessons.find(l => l.id === lessonId) || allLessons?.[0];
   if(!currentLesson) {
     return (
         <div className="container mx-auto px-4 py-12">
@@ -108,7 +110,6 @@ export default function CourseLearnPage() {
     )
   }
 
-  const allLessons = course.modules?.flatMap(m => m.lessons) || course.lessons || [];
   const currentLessonIndex = allLessons.findIndex(l => l.id === lessonId);
   const nextLesson = currentLessonIndex < allLessons.length -1 ? allLessons[currentLessonIndex + 1] : null;
   const prevLesson = currentLessonIndex > 0 ? allLessons[currentLessonIndex - 1] : null;

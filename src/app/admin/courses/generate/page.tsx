@@ -32,10 +32,6 @@ export default function GenerateCoursePage() {
         setGenerating(true);
         try {
             const generatedData = await generateCourse({ topic: courseTopic });
-            const allLessons = generatedData.modules.flatMap((m, moduleIndex) => m.lessons.map((l, lessonIndex) => ({
-                ...l,
-                id: `m${moduleIndex + 1}-l${lessonIndex + 1}`,
-            })));
 
             await addDoc(collection(db, 'courses'), {
                 ...generatedData,
@@ -46,7 +42,6 @@ export default function GenerateCoursePage() {
                 status: 'Draft',
                 targetAudience: 'Beginners interested in this topic.',
                 prerequisites: 'None required.',
-                lessons: allLessons,
                 modules: generatedData.modules.map((m, moduleIndex) => ({
                     ...m,
                     imageUrl: `https://placehold.co/600x400`,

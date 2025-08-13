@@ -8,7 +8,6 @@ export type Course = {
   imageUrl: string;
   category: string;
   duration: string;
-  lessons: Lesson[];
   rating: number;
   enrolledStudents: number;
   modules: Module[];

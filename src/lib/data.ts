@@ -25,11 +25,9 @@ export const sampleCourses: Omit<Course, 'id'>[] = [
         rating: 4.7,
         enrolledStudents: 1250,
         price: 49.99,
-        lessons: [
-            { id: "m1-l1", title: "HTML Basics", duration: "12 min", content: "Learn the basic structure of HTML pages." },
-            { id: "m1-l2", title: "CSS Fundamentals", duration: "18 min", content: "Discover how to style your web pages with CSS." },
-            { id: "m2-l1", title: "JavaScript Variables", duration: "15 min", content: "Understand variables and data types in JavaScript." }
-        ],
+        status: 'Published',
+        targetAudience: 'Beginners',
+        prerequisites: 'None',
         modules: [
             {
                 title: "Module 1: Getting Started",
@@ -59,10 +57,9 @@ export const sampleCourses: Omit<Course, 'id'>[] = [
         rating: 4.9,
         enrolledStudents: 850,
         price: 99.99,
-        lessons: [
-            { id: "m1-l1", title: "Photoshop Mastery", duration: "25 min", content: "Advanced photo editing and manipulation techniques." },
-            { id: "m2-l1", title: "Vector Art with Illustrator", duration: "30 min", content: "Create stunning vector illustrations from scratch." },
-        ],
+        status: 'Published',
+        targetAudience: 'Intermediate Designers',
+        prerequisites: 'Basic design knowledge',
         modules: [
             {
                 title: "Module 1: Photoshop Deep Dive",
@@ -91,10 +88,9 @@ export const sampleCourses: Omit<Course, 'id'>[] = [
         rating: 4.6,
         enrolledStudents: 500,
         price: 29.99,
-        lessons: [
-             { id: "m1-l1", title: "Crafting Your Message", duration: "20 min", content: "Learn how to structure a compelling narrative." },
-             { id: "m2-l1", title: "Confident Delivery", duration: "22 min", content: "Techniques for confident and engaging delivery." },
-        ],
+        status: 'Published',
+        targetAudience: 'Anyone',
+        prerequisites: 'None',
         modules: [
             {
                 title: "Module 1: Speechwriting",
