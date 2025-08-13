@@ -20,21 +20,23 @@ import { useToast } from "@/hooks/use-toast"
 import type { User, Course } from "@/lib/types"
 
 const formSchema = z.object({
+  userId: z.string({ required_error: "Please select a student." }),
   courseId: z.string({ required_error: "Please select a course." }),
 })
 
 interface GenerateCertificateFormProps {
     onCertificateGenerated: () => void;
-    user: User;
+    users: User[];
     courses: Course[];
 }
 
-export function GenerateCertificateForm({ onCertificateGenerated, user, courses }: GenerateCertificateFormProps) {
+export function GenerateCertificateForm({ onCertificateGenerated, users, courses }: GenerateCertificateFormProps) {
     const { toast } = useToast()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            userId: "",
             courseId: "",
         },
     })
@@ -42,8 +44,10 @@ export function GenerateCertificateForm({ onCertificateGenerated, user, courses 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             const course = courses.find(c => c.id === values.courseId);
-            if (!course) {
-                toast({ title: "Error", description: "Selected course not found.", variant: "destructive" });
+            const user = users.find(u => u.id === values.userId);
+
+            if (!course || !user) {
+                toast({ title: "Error", description: "Selected user or course not found.", variant: "destructive" });
                 return;
             }
 
@@ -81,7 +85,29 @@ export function GenerateCertificateForm({ onCertificateGenerated, user, courses 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <p>Generating certificate for: <strong>{user.name}</strong></p>
+                 <FormField
+                    control={form.control}
+                    name="userId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Select Student</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a student to certify" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                {users.map(user => (
+                                    <SelectItem key={user.id} value={user.id!}>{user.name} ({user.email})</SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
                 <FormField
                     control={form.control}
                     name="courseId"

@@ -20,16 +20,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
-import { GenerateCertificateForm } from '@/components/admin/GenerateCertificateForm';
+import Link from 'next/link';
 
 
 export default function AdminUsersPage() {
@@ -97,11 +89,6 @@ export default function AdminUsersPage() {
         }
     };
 
-    const handleOpenCertDialog = (user: User) => {
-        setSelectedUser(user);
-        setIsCertDialogOpen(true);
-    };
-
     return (
         <Card>
             <CardHeader>
@@ -109,110 +96,93 @@ export default function AdminUsersPage() {
                 <CardDescription>Manage your platform's users and their roles.</CardDescription>
             </CardHeader>
             <CardContent>
-                 <Dialog open={isCertDialogOpen} onOpenChange={setIsCertDialogOpen}>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Role</TableHead>
-                                <TableHead>Courses Enrolled</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead>Courses Enrolled</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {users.map(user => (
+                            <TableRow key={user.id}>
+                                <TableCell className="font-medium">{user.name}</TableCell>
+                                <TableCell>{user.email}</TableCell>
+                                <TableCell>
+                                    <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>
+                                        {user.role}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>{0}</TableCell>
+                                <TableCell className="text-right">
+                                    <AlertDialog>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuSub>
+                                                    <DropdownMenuSubTrigger>
+                                                        <Edit className="mr-2 h-4 w-4" />
+                                                        <span>Edit Role</span>
+                                                    </DropdownMenuSubTrigger>
+                                                    <DropdownMenuPortal>
+                                                    <DropdownMenuSubContent>
+                                                        <DropdownMenuRadioGroup 
+                                                            value={user.role} 
+                                                            onValueChange={(value) => handleRoleChange(user.id!, value as 'Admin' | 'Student')}
+                                                        >
+                                                            <DropdownMenuRadioItem value="Student">Student</DropdownMenuRadioItem>
+                                                            <DropdownMenuRadioItem value="Admin">Admin</DropdownMenuRadioItem>
+                                                        </DropdownMenuRadioGroup>
+                                                    </DropdownMenuSubContent>
+                                                    </DropdownMenuPortal>
+                                                </DropdownMenuSub>
+                                                <DropdownMenuItem asChild>
+                                                    <Link href={{ pathname: '/admin/grading', query: { tab: 'certificates', user: user.id } }}>
+                                                        <Award className="mr-2 h-4 w-4" />
+                                                        Generate Certificate
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <AlertDialogTrigger asChild>
+                                                    <DropdownMenuItem className="text-destructive">
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                        Suspend
+                                                    </DropdownMenuItem>
+                                                </AlertDialogTrigger>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This action will delete the user record from the database. It cannot be undone.
+                                                    For full suspension, you must also delete the user from Firebase Authentication.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleSuspendUser(user.id!)}>Continue</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </TableCell>
                             </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {users.map(user => (
-                                <TableRow key={user.id}>
-                                    <TableCell className="font-medium">{user.name}</TableCell>
-                                    <TableCell>{user.email}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>
-                                            {user.role}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>{0}</TableCell>
-                                    <TableCell className="text-right">
-                                        <AlertDialog>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuSub>
-                                                        <DropdownMenuSubTrigger>
-                                                            <Edit className="mr-2 h-4 w-4" />
-                                                            <span>Edit Role</span>
-                                                        </DropdownMenuSubTrigger>
-                                                        <DropdownMenuPortal>
-                                                        <DropdownMenuSubContent>
-                                                            <DropdownMenuRadioGroup 
-                                                                value={user.role} 
-                                                                onValueChange={(value) => handleRoleChange(user.id!, value as 'Admin' | 'Student')}
-                                                            >
-                                                                <DropdownMenuRadioItem value="Student">Student</DropdownMenuRadioItem>
-                                                                <DropdownMenuRadioItem value="Admin">Admin</DropdownMenuRadioItem>
-                                                            </DropdownMenuRadioGroup>
-                                                        </DropdownMenuSubContent>
-                                                        </DropdownMenuPortal>
-                                                    </DropdownMenuSub>
-                                                    <DialogTrigger asChild>
-                                                        <DropdownMenuItem onClick={() => handleOpenCertDialog(user)}>
-                                                            <Award className="mr-2 h-4 w-4" />
-                                                            Generate Certificate
-                                                        </DropdownMenuItem>
-                                                    </DialogTrigger>
-                                                    <DropdownMenuSeparator />
-                                                    <AlertDialogTrigger asChild>
-                                                        <DropdownMenuItem className="text-destructive">
-                                                            <Trash2 className="mr-2 h-4 w-4" />
-                                                            Suspend
-                                                        </DropdownMenuItem>
-                                                    </AlertDialogTrigger>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This action will delete the user record from the database. It cannot be undone.
-                                                        For full suspension, you must also delete the user from Firebase Authentication.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleSuspendUser(user.id!)}>Continue</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {users.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="text-center h-24">No users found.</TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                     {selectedUser && (
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Generate Certificate</DialogTitle>
-                                <DialogDescription>
-                                    Issue a new course completion certificate.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <GenerateCertificateForm 
-                                user={selectedUser} 
-                                courses={courses} 
-                                onCertificateGenerated={() => setIsCertDialogOpen(false)}
-                            />
-                        </DialogContent>
-                    )}
-                </Dialog>
+                        ))}
+                        {users.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={5} className="text-center h-24">No users found.</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
             </CardContent>
         </Card>
     )
