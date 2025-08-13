@@ -1,45 +1,58 @@
-rules_version = '2';
 
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-  
+
     function isAdmin() {
-      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      // Check if the user has an 'Admin' role in their user document.
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
     }
 
+    // Admins can read/write all user data.
+    // Authenticated users can read their own data.
     match /users/{userId} {
-      allow read, update: if request.auth.uid == userId || isAdmin();
-      allow list: if isAdmin();
+      allow read: if request.auth != null && (isAdmin() || request.auth.uid == userId);
+      allow write: if isAdmin() || request.auth.uid == userId;
     }
     
+    // Admins can manage all courses.
+    // Any authenticated user can read published courses.
     match /courses/{courseId} {
-      allow read: if resource.data.status == 'Published' || isAdmin();
-      allow create, update, delete: if isAdmin();
+      allow read: if request.auth != null && (resource.data.status == 'Published' || isAdmin());
+      allow create, update, delete: if request.auth != null && isAdmin();
     }
 
+    // Admins can manage all quizzes.
+    // Any authenticated user can read quizzes.
     match /quizzes/{quizId} {
-      allow read, create, update, delete: if isAdmin();
+        allow read: if request.auth != null;
+        allow create, update, delete: if request.auth != null && isAdmin();
     }
-    
+
+    // Admins can manage all discussions.
+    // Any authenticated user can read discussions.
     match /discussions/{discussionId} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if request.auth != null && isAdmin();
+    }
+
+    // Admins can manage all settings.
+    // Any authenticated user can read settings.
+    match /settings/{settingId} {
       allow read: if request.auth != null;
-      allow create, update, delete: if isAdmin();
+      allow write: if request.auth != null && isAdmin();
     }
-    
-    match /certificates/{certId} {
-      allow read: if request.auth.uid == resource.data.userId || isAdmin();
-      allow create, update, delete: if isAdmin();
-    }
-    
+
+    // Admins can manage maintenance mode.
     match /maintenance/{docId} {
-      allow read: if request.auth != null;
-      allow update: if isAdmin();
+        allow read, write: if request.auth != null && isAdmin();
     }
-    
-    match /settings/{docId} {
-       allow read: if request.auth != null;
-       allow write: if isAdmin();
+
+    // Admins can manage certificates.
+    // Authenticated users can read their own certificates.
+    match /certificates/{certificateId} {
+      allow read: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.userId);
+      allow create, delete: if request.auth != null && isAdmin();
     }
   }
 }
