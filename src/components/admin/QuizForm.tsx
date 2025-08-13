@@ -2,7 +2,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useFieldArray } from "react-hook-form"
+import { useForm, useFieldArray, type UseFormReturn } from "react-hook-form"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase"
 import { useToast } from "@/hooks/use-toast"
 import { PlusCircle, Trash2 } from "lucide-react"
@@ -29,50 +29,56 @@ const questionSchema = z.object({
     correctAnswer: z.coerce.number().min(0),
 });
 
-const formSchema = z.object({
+export const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   courseId: z.string({ required_error: "Please select a course." }),
   questions: z.array(questionSchema).min(1, "Must have at least one question."),
 })
 
-interface AssignmentFormProps {
-    onAssignmentAdded: () => void;
+export type QuizFormValues = z.infer<typeof formSchema>;
+
+interface QuizFormProps {
+    onQuizHandled: () => void;
     courses: { id: string, title: string }[];
+    form: UseFormReturn<QuizFormValues>;
+    initialData?: QuizFormValues | null;
+    quizId?: string;
 }
 
-export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormProps) {
+export function QuizForm({ onQuizHandled, courses, form, initialData, quizId }: QuizFormProps) {
     const { toast } = useToast()
+    const isEditing = !!initialData;
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            title: "",
-            courseId: "",
-            questions: [{ text: "", options: ["", ""], correctAnswer: 0 }],
-        },
-    })
-
-    const { fields, append, remove, update } = useFieldArray({
+    const { fields, append, remove } = useFieldArray({
         control: form.control,
         name: "questions"
     });
-
+    
     const watchedQuestions = form.watch('questions');
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            await addDoc(collection(db, "assignments"), values);
-            toast({
-                title: "Assignment Created!",
-                description: "The new assignment has been successfully added.",
-            })
+            if (isEditing && quizId) {
+                const quizRef = doc(db, "quizzes", quizId);
+                await updateDoc(quizRef, values);
+                toast({
+                    title: "Quiz Updated!",
+                    description: "The quiz has been successfully updated.",
+                });
+            } else {
+                 await addDoc(collection(db, "quizzes"), values);
+                toast({
+                    title: "Quiz Created!",
+                    description: "The new quiz has been successfully added.",
+                })
+            }
             form.reset();
-            onAssignmentAdded();
+            onQuizHandled();
         } catch (e) {
-            console.error("Error adding document: ", e);
+            console.error("Error handling document: ", e);
             toast({
                 title: "Error",
-                description: "There was an error creating the assignment.",
+                description: `There was an error ${isEditing ? 'updating' : 'creating'} the quiz.`,
                 variant: "destructive"
             })
         }
@@ -86,7 +92,7 @@ export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormPro
                     name="title"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Assignment Title</FormLabel>
+                            <FormLabel>Quiz Title</FormLabel>
                             <FormControl>
                                 <Input placeholder="e.g., Module 1 Review" {...field} />
                             </FormControl>
@@ -120,7 +126,7 @@ export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormPro
                 <div className="space-y-4">
                     <FormLabel>Questions</FormLabel>
                     {fields.map((field, index) => {
-                        const currentOptions = watchedQuestions[index]?.options || [];
+                         const currentOptions = watchedQuestions[index]?.options || [];
                         return (
                         <Card key={field.id} className="p-4 bg-secondary">
                              <div className="space-y-4">
@@ -143,7 +149,7 @@ export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormPro
                                         </FormItem>
                                     )}
                                 />
-                                {field.options.map((option, optionIndex) => (
+                                {currentOptions.map((option, optionIndex) => (
                                     <FormField
                                         key={`${field.id}-option-${optionIndex}`}
                                         control={form.control}
@@ -159,6 +165,12 @@ export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormPro
                                         )}
                                     />
                                 ))}
+                                 <Button type="button" variant="outline" size="sm" onClick={() => {
+                                    const newOptions = [...currentOptions, ""];
+                                    form.setValue(`questions.${index}.options`, newOptions);
+                                 }}>
+                                    <PlusCircle className="mr-2 h-4 w-4" /> Add Option
+                                </Button>
                                 <FormField
                                     control={form.control}
                                     name={`questions.${index}.correctAnswer`}
@@ -190,7 +202,7 @@ export function AssignmentForm({ onAssignmentAdded, courses }: AssignmentFormPro
                 </div>
 
 
-                <Button type="submit">Create Assignment</Button>
+                <Button type="submit">{isEditing ? 'Save Changes' : 'Create Quiz'}</Button>
             </form>
         </Form>
     )

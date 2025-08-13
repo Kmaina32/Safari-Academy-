@@ -1,5 +1,4 @@
 
-
 export type Course = {
   id?: string;
   title: string;
@@ -59,16 +58,16 @@ export type Question = {
     correctAnswer: number; // index of the correct option
 }
 
-export type Assignment = {
+export type Quiz = {
     id?: string;
     title: string;
     courseId: string;
     questions: Question[];
 }
 
-export type AssignmentSubmission = {
+export type QuizSubmission = {
     id?: string;
-    assignmentId: string;
+    quizId: string;
     userId: string;
     answers: number[]; // array of selected option indices
     score: number; // percentage
