@@ -6,13 +6,13 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateCourse } from '@/ai/flows/course-generator';
 import { addDoc, collection } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function GenerateCoursePage() {
     const router = useRouter();
@@ -24,7 +24,7 @@ export default function GenerateCoursePage() {
         if (!courseTopic) {
             toast({
                 title: 'Topic Required',
-                description: 'Please enter a topic for the course.',
+                description: 'Please paste the raw course data into the text area.',
                 variant: 'destructive',
             });
             return;
@@ -42,7 +42,10 @@ export default function GenerateCoursePage() {
                 imageUrl: `https://placehold.co/600x400`,
                 rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
                 enrolledStudents: Math.floor(Math.random() * 1000),
-                price: Math.floor(Math.random() * 8) * 10 + 29.99, // Random price
+                price: Math.floor(Math.random() * 8) * 10 + 29.99,
+                status: 'Draft',
+                targetAudience: 'Beginners',
+                prerequisites: 'None',
                 lessons: allLessons,
                 modules: generatedData.modules.map((m, moduleIndex) => ({
                     ...m,
@@ -64,7 +67,7 @@ export default function GenerateCoursePage() {
             console.error('Error generating course: ', error);
             toast({
                 title: 'Error',
-                description: 'There was an error generating the course.',
+                description: 'There was an error generating the course. The AI may not have been able to parse the format.',
                 variant: 'destructive',
             });
         } finally {
@@ -83,32 +86,33 @@ export default function GenerateCoursePage() {
                 <div>
                     <h1 className="text-3xl font-bold font-headline">Generate Course with AI</h1>
                     <p className="text-muted-foreground">
-                        Provide a topic and let AI create a comprehensive course structure for you.
+                        Paste raw course text and let AI create a structured course for you.
                     </p>
                 </div>
             </div>
-            <Card className="max-w-2xl">
+            <Card>
                 <CardHeader>
-                    <CardTitle>Course Topic</CardTitle>
+                    <CardTitle>Course Raw Data</CardTitle>
                     <CardDescription>
-                        Enter the subject you want to create a course about.
+                        Paste the full text content for the course below. The AI will parse it into modules and lessons.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-2">
-                        <Label htmlFor="course-topic" className="sr-only">Course Topic</Label>
-                        <Input
+                        <Label htmlFor="course-topic" className="sr-only">Course Data</Label>
+                        <Textarea
                             id="course-topic"
-                            placeholder="e.g., 'Introduction to Quantum Physics'"
+                            placeholder="Paste your course content here..."
                             value={courseTopic}
                             onChange={(e) => setCourseTopic(e.target.value)}
                             disabled={generating}
+                            rows={15}
                         />
                     </div>
                 </CardContent>
                 <CardFooter>
                     <Button onClick={handleGenerateCourse} disabled={generating}>
-                        {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                         {generating ? 'Generating...' : 'Generate Course'}
                     </Button>
                 </CardFooter>
