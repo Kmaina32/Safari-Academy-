@@ -1,9 +1,10 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Users, BookOpen, DollarSign } from "lucide-react";
 import { LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line, PieChart, Pie, Cell } from "recharts";
 import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, getDocs, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Course } from "@/lib/types";
 
@@ -16,13 +17,6 @@ const monthlyRevenueMock = [
   { month: 'Jun', revenue: 5500 },
 ];
 
-const courseEnrollments = [
-  { name: 'Web Dev', value: 400 },
-  { name: 'Design', value: 300 },
-  { name: 'Marketing', value: 300 },
-  { name: 'Speaking', value: 200 },
-];
-
 const COLORS = ['#31AD48', '#D4A944', '#4A90E2', '#8B5CF6'];
 
 
@@ -30,6 +24,8 @@ export default function AdminAnalyticsPage() {
   const [userCount, setUserCount] = useState(0);
   const [courseCount, setCourseCount] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [enrollmentsByCategory, setEnrollmentsByCategory] = useState<{name: string, value: number}[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const usersUnsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
@@ -39,13 +35,23 @@ export default function AdminAnalyticsPage() {
     const coursesUnsubscribe = onSnapshot(collection(db, "courses"), (snapshot) => {
         let revenue = 0;
         const coursesData: Course[] = [];
+        const categoryCount: {[key: string]: number} = {};
+
         snapshot.forEach((doc) => {
             const course = doc.data() as Course;
             coursesData.push(course);
             revenue += course.price || 0;
+            if (course.category) {
+              categoryCount[course.category] = (categoryCount[course.category] || 0) + (course.enrolledStudents || 0);
+            }
         });
+        
+        const enrollmentData = Object.entries(categoryCount).map(([name, value]) => ({ name, value }));
+
         setCourseCount(coursesData.length);
         setTotalRevenue(revenue);
+        setEnrollmentsByCategory(enrollmentData);
+        setLoading(false);
     });
 
     return () => {
@@ -70,7 +76,7 @@ export default function AdminAnalyticsPage() {
         </Card>
          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">New Enrollments</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Enrollments</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -111,13 +117,14 @@ export default function AdminAnalyticsPage() {
         <Card className="lg:col-span-2">
             <CardHeader>
                 <CardTitle>Enrollments by Category</CardTitle>
-                <CardDescription>Student distribution across course categories (mock data).</CardDescription>
+                <CardDescription>Student distribution across course categories.</CardDescription>
             </CardHeader>
             <CardContent className="h-[300px]">
+                {loading ? <p>Loading chart data...</p> : 
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                        <Pie data={courseEnrollments} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                             {courseEnrollments.map((entry, index) => (
+                        <Pie data={enrollmentsByCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                             {enrollmentsByCategory.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                         </Pie>
@@ -125,6 +132,7 @@ export default function AdminAnalyticsPage() {
                          <Legend />
                     </PieChart>
                 </ResponsiveContainer>
+                }
             </CardContent>
         </Card>
       </div>
