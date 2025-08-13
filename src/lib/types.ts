@@ -101,3 +101,12 @@ export type CertificateSettings = {
     signatureUrl: string;
     sealUrl: string;
 }
+
+export type MaintenanceSettings = {
+    isEnabled: boolean;
+    message: string;
+    endTime: {
+        seconds: number;
+        nanoseconds: number;
+    } | null;
+}

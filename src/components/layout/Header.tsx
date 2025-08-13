@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AlignJustify, Bell, Home, LogOut, Settings, User, Shield, Award } from 'lucide-react';
+import { AlignJustify, Bell, Home, LogOut, Settings, User, Shield, GraduationCap } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -31,6 +31,8 @@ import { ThemeToggle } from './ThemeToggle';
 
 const loggedOutNavLinks = [
   { href: '/courses', label: 'Courses' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
 ];
 
 const loggedInNavLinks = [
@@ -49,20 +51,20 @@ const adminNavLinks = [
     { href: '/admin/analytics', label: 'Analytics'},
     { href: '/admin/discussions', label: 'Discussions'},
     { href: '/admin/settings', label: 'Settings'},
+    { href: '/admin/maintenance', label: 'Maintenance'},
 ]
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading, logout } = useAuth();
+  const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
   const isAdminPage = pathname.startsWith('/admin');
   const isHomePage = pathname === '/';
   
   let navLinks;
-  if (isAdminPage) {
-    navLinks = adminNavLinks;
-  } else if (user) {
+  if (user && !isAdminPage) {
     navLinks = loggedInNavLinks;
   } else {
     navLinks = loggedOutNavLinks;
@@ -85,7 +87,7 @@ export function Header() {
         
         {/* Mobile Menu */}
         <div className="md:hidden">
-            <Sheet>
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                     <Button variant="ghost" size="icon">
                         <AlignJustify className="h-6 w-6" />
@@ -109,6 +111,7 @@ export function Header() {
                                     'text-lg font-medium text-muted-foreground transition-colors hover:text-foreground',
                                     pathname === link.href && 'text-foreground'
                                 )}
+                                onClick={() => setIsSheetOpen(false)}
                             >
                                 {link.label}
                             </Link>
@@ -166,14 +169,12 @@ export function Header() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {!isAdminPage && (
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin">
-                          <Shield className="mr-2 h-4 w-4" />
-                          <span>Admin</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin">
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>Admin</span>
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/dashboard/profile">
                         <User className="mr-2 h-4 w-4" />
