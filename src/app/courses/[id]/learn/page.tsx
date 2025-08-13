@@ -10,7 +10,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight, PlayCircle, CheckCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PlayCircle, CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Progress } from '@/components/ui/progress';
 import { doc, getDoc } from 'firebase/firestore';
@@ -51,6 +51,9 @@ export default function CourseLearnPage() {
   const searchParams = useSearchParams();
   const [course, setCourse] = React.useState<Course | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [currentPage, setCurrentPage] = React.useState(0);
+
+  const lessonId = searchParams.get('lesson') || course?.lessons?.[0]?.id;
 
   React.useEffect(() => {
     if (id) {
@@ -77,6 +80,11 @@ export default function CourseLearnPage() {
     }
   }, [id]);
 
+  React.useEffect(() => {
+    // Reset page to 0 when lesson changes
+    setCurrentPage(0);
+  }, [lessonId]);
+
   if (loading) {
     return <CourseLearnSkeleton />;
   }
@@ -85,7 +93,6 @@ export default function CourseLearnPage() {
     return notFound();
   }
   
-  const lessonId = searchParams.get('lesson') || course.lessons?.[0]?.id;
   const currentLesson = course.lessons?.find(l => l.id === lessonId) || course.lessons?.[0];
   if(!currentLesson) {
     return (
@@ -113,6 +120,8 @@ export default function CourseLearnPage() {
 
   const currentModule = findModuleForLesson(currentLesson.id);
 
+  const lessonPages = currentLesson.content.split('\n').filter(p => p.trim() !== '');
+  const totalPages = lessonPages.length;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -130,13 +139,24 @@ export default function CourseLearnPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>About this lesson</CardTitle>
+                        <CardTitle>Lesson Content</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="prose max-w-none text-foreground text-base">
-                            <p>{currentLesson.content}</p>
+                        <div className="prose max-w-none text-foreground text-base min-h-[12rem]">
+                            <p>{lessonPages[currentPage]}</p>
                         </div>
                     </CardContent>
+                     {totalPages > 1 && (
+                        <div className="flex items-center justify-between border-t p-4">
+                            <Button variant="outline" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 0}>
+                                <ArrowLeft className="mr-2 h-4 w-4" /> Previous Page
+                            </Button>
+                            <span className="text-sm font-medium text-muted-foreground">Page {currentPage + 1} of {totalPages}</span>
+                            <Button variant="outline" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage >= totalPages - 1}>
+                                Next Page <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
                 </Card>
 
                  <div className="flex items-center justify-between pt-4 border-t">
