@@ -1,62 +1,67 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function isAdmin() {
-      // Check if the user is authenticated, exists in the users collection, and has the 'Admin' role.
-      return request.auth != null &&
-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
+      // Check if the user is authenticated and has the 'Admin' role in their user document.
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'Admin';
     }
 
+    // Rules for the 'users' collection
     match /users/{userId} {
-      // Admins can manage all users.
+      // A user can read/write their own document.
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      // Admins can read/write any user document.
       allow read, write: if isAdmin();
-      // Authenticated users can read and update their own profile.
-      allow read, update: if request.auth.uid == userId;
+       // Allow new users to be created during signup.
+      allow create: if request.auth != null;
     }
 
+    // Rules for the 'courses' collection
     match /courses/{courseId} {
-        // Anyone can read published courses. Admins can read any course.
-        allow read: if resource.data.status == 'Published' || isAdmin();
-        // Only admins can create, update, or delete courses.
-        allow create, update, delete: if isAdmin();
-    }
-    
-    match /quizzes/{quizId} {
-      // Only admins can manage quizzes.
+      // ANYONE can read a course, IF its status is 'Published'.
+      allow read: if resource.data.status == 'Published';
+      // Admins can read/write any course, regardless of status.
       allow read, write: if isAdmin();
-      // Authenticated users can view quizzes.
-      allow read: if request.auth != null;
+    }
+    
+    // Rules for the 'quizzes' collection
+    match /quizzes/{quizId} {
+        // Logged-in users can read quizzes (to take them).
+        allow read: if request.auth != null;
+        // Admins can create, update, and delete quizzes.
+        allow write: if isAdmin();
+    }
+    
+    // Rules for the 'certificates' collection
+    match /certificates/{certificateId} {
+        // Users can read their own certificates.
+        allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+        // Admins can read all certificates and create new ones.
+        allow read, create: if isAdmin();
     }
 
+    // Rules for the 'settings' collection
+    match /settings/{docId} {
+       // Allow ANYONE to read the homepage settings for the landing page.
+      allow read: if docId == 'homepage';
+       // Allow admins to write to any settings document.
+      allow write: if isAdmin();
+    }
+    
+    // Rules for 'maintenance' settings
+     match /maintenance/{docId} {
+      allow read: if true; // Anyone can read maintenance status
+      allow write: if isAdmin(); // Only admins can change it
+    }
+    
+    // Rules for 'discussions'
     match /discussions/{discussionId} {
-        // Any authenticated user can read or create discussions.
-        allow read, create: if request.auth != null;
-        // Only admins can modify/delete discussions.
-        allow write: if isAdmin();
-    }
-    
-    match /certificates/{certId} {
-        // Users can read certificates issued to them.
-        allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
-        // Only admins can create certificates.
-        allow create: if isAdmin();
+        allow read: if request.auth != null; // Logged-in users can read discussions
+        allow write: if isAdmin(); // Admins can create/delete them
     }
 
-    match /maintenance/settings {
-        // Anyone can read maintenance settings to see if the site is down.
-        allow read: if true;
-        // Only admins can change maintenance settings.
-        allow write: if isAdmin();
-    }
-    
-    match /settings/homepage {
-        // Anyone can read the homepage settings.
-        allow read: if true;
-        // Only admins can change homepage settings.
-        allow write: if isAdmin();
-    }
   }
 }
